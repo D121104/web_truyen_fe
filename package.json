@@ -3,12 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+<<<<<<< HEAD
     "dev": "next dev --turbopack",
+=======
+    "dev": "next dev",
+>>>>>>> d789e8c1d8be88e18e1b9750024b58318f69242f
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@ant-design/icons": "6.0.0",
     "@ant-design/nextjs-registry": "1.0.2",
     "@ant-design/v5-patch-for-react-19": "1.0.3",
@@ -27,5 +32,20 @@
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
     "typescript": "^5"
+=======
+    "@ant-design/nextjs-registry": "1.0.0",
+    "antd": "5.19.3",
+    "next": "14.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.12",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.5",
+    "typescript": "^5.5.4"
+>>>>>>> d789e8c1d8be88e18e1b9750024b58318f69242f
   }
 }

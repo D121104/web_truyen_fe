@@ -1,8 +1,16 @@
 import type { Metadata } from "next";
+<<<<<<< HEAD
 import "@/app/globals.css";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import StyledComponentsRegistry from "@/lib/antd.registry";
 import { ConfigProvider } from "antd";
+=======
+import { Inter } from "next/font/google";
+import "@/app/globals.css";
+import { AntdRegistry } from '@ant-design/nextjs-registry';
+
+const inter = Inter({ subsets: ["latin"] });
+>>>>>>> d789e8c1d8be88e18e1b9750024b58318f69242f
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,12 +24,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+<<<<<<< HEAD
       <body>
         <ConfigProvider>
           <StyledComponentsRegistry>
             <AntdRegistry>{children}</AntdRegistry>
           </StyledComponentsRegistry>
         </ConfigProvider>
+=======
+      <body className={inter.className}>
+        <AntdRegistry>
+          {children}
+        </AntdRegistry>
+>>>>>>> d789e8c1d8be88e18e1b9750024b58318f69242f
       </body>
     </html>
   );
