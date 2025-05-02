@@ -1,0 +1,34 @@
+.dropdownContent {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); // 4 cột
+  gap: 10px; // Khoảng cách giữa các mục
+  padding: 15px; // Khoảng cách bên trong
+  background: #fff; // Màu nền trắng
+  border: 1px solid #ddd; // Viền mỏng
+  border-radius: 8px; // Bo góc
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Đổ bóng
+  max-width: 600px; // Giới hạn chiều rộng
+  z-index: 1000; // Đảm bảo dropdown nằm trên các thành phần khác
+}
+
+.row {
+  display: contents; // Để các cell nằm trong grid
+}
+
+.cell {
+  font-size: 16px; // Kích thước chữ
+  color: #333; // Màu chữ mặc định
+  cursor: pointer; // Con trỏ chuột dạng pointer
+  transition: color 0.2s, transform 0.2s; // Hiệu ứng chuyển đổi
+
+  &:hover {
+    color: red; // Chuyển sang màu đỏ khi hover
+    transform: scale(1.05); // Phóng to nhẹ khi hover
+    text-decoration: none; // Bỏ gạch chân khi hover
+  }
+
+  &.highlight {
+    color: red; // Màu đỏ cho các mục nổi bật
+    font-weight: bold; // In đậm
+  }
+}

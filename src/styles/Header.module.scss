@@ -1,0 +1,14 @@
+// Variables
+$primary-color: #3aafa9;
+$hover-color: #45a29e;
+$text-color: #2c3e50;
+$border-color: #f0f0f0;
+$shadow-color: rgba(0, 0, 0, 0.08);
+$button-color: #ffff00;
+
+.header-top {
+  background-color: $primary-color;
+  color: white;
+  padding: 10px 0;
+  text-align: center;
+}

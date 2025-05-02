@@ -1,0 +1,53 @@
+.cardContainer {
+  width: 210px; /* Kích thước của Card */
+}
+
+.card {
+  position: relative;
+  overflow: hidden; /* Đảm bảo lớp overlay không tràn ra ngoài */
+  border-radius: 8px; /* Bo góc cho card */
+}
+
+.image {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px; /* Bo góc cho hình ảnh */
+}
+
+.overlay {
+  position: absolute;
+  bottom: 0; /* Đặt overlay ở dưới cùng */
+  left: 0;
+  width: 95%;
+  background: rgba(0, 0, 0, 0.8); /* Lớp phủ màu đen với độ trong suốt */
+  color: #fff; /* Màu chữ trắng */
+  padding: 5px;
+  text-align: left; /* Căn trái nội dung */
+}
+
+.title {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0 0 5px;
+  white-space: nowrap; /* Không xuống dòng */
+  overflow: hidden; /* Ẩn nội dung tràn */
+  text-overflow: ellipsis; /* Thêm dấu "..." nếu nội dung quá dài */
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between; /* Đưa `chapter` và `time` ra hai bên */
+  align-items: center;
+  font-size: 12px;
+  color: #ccc; /* Màu chữ nhạt hơn */
+  margin: 0;
+}
+
+.chapter {
+  margin: 0;
+}
+
+.time {
+  margin: 0;
+}

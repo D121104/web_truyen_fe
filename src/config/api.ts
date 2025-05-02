@@ -1,6 +1,13 @@
 import { setRefreshTokenAction } from "@/lib/redux/slice/auth.slice";
 import { makeStore } from "@/lib/redux/store";
-import { User, ILoginUser, IBackendRes, IGetLoginUser } from "@/types/backend";
+import {
+  User,
+  ILoginUser,
+  IBackendRes,
+  IGetLoginUser,
+  IModelPaginate,
+  INotification,
+} from "@/types/backend";
 import { notification, message } from "antd";
 
 const BACKEND_URL = "http://localhost:8080";
@@ -59,7 +66,7 @@ const fetchWithInterceptor = async (
 
     if (
       response.status === 400 &&
-      url === "/api/v1/auth/refresh" &&
+      url === "/api/auth/refresh" &&
       location.pathname.startsWith("/admin")
     ) {
       const message =
@@ -76,6 +83,7 @@ const fetchWithInterceptor = async (
   return response.json();
 };
 
+// Auth API
 export async function loginUser(
   payload: LoginPayload
 ): Promise<IBackendRes<ILoginUser> | undefined> {
@@ -111,7 +119,7 @@ export async function loginUser(
 export const callFetchAccount = async (
   accessToken = ""
 ): Promise<IBackendRes<IGetLoginUser> | undefined> => {
-  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/v1/auth/account`, {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/auth/account`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -140,4 +148,43 @@ export const refreshToken = async (): Promise<string | null> => {
   }
   const data: IBackendRes<ILoginUser> = await res.json();
   return data.data?.access_token || null;
+};
+
+export const logout = async (): Promise<void> => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/auth/logout`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+    },
+    credentials: "include",
+  });
+  if (res.statusCode === 400) {
+    notification.error({
+      message: "Có lỗi xảy ra",
+      description: res.message,
+    });
+    return;
+  }
+
+  return res;
+};
+
+// api notifications
+
+export const fetchNotifications = async ({
+  current = 1,
+  pageSize = 50,
+}): Promise<IBackendRes<IModelPaginate<INotification>>> => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/notifications`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      current,
+      pageSize,
+    }),
+  });
+  return res;
 };

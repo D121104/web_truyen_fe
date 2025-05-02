@@ -1,0 +1,34 @@
+.dropdownContent {
+  display: flex;
+  flex-direction: column; // Hiển thị các mục theo chiều dọc
+  gap: 10px; // Khoảng cách giữa các mục
+  padding: 15px; // Khoảng cách bên trong
+  background: #fff; // Màu nền trắng
+  border: 1px solid #ddd; // Viền mỏng
+  border-radius: 8px; // Bo góc
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Đổ bóng
+  z-index: 1000; // Đảm bảo dropdown nằm trên các thành phần khác
+  min-width: 200px; // Đặt chiều rộng tối thiểu
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px; // Khoảng cách giữa icon và text
+  font-size: 14px; // Kích thước chữ
+  color: #333; // Màu chữ mặc định
+  cursor: pointer; // Con trỏ chuột dạng pointer
+  transition: color 0.2s, background-color 0.2s; // Hiệu ứng chuyển đổi
+
+  &:hover {
+    color: red; // Chuyển sang màu đỏ khi hover
+    transform: scale(1.05); // Phóng to nhẹ khi hover
+    text-decoration: none; // Bỏ gạch chân khi hover
+  }
+}
+
+.divider {
+  height: 1px;
+  background-color: #ddd;
+  margin: 8px 0; // Khoảng cách trên dưới của dòng phân cách
+}

@@ -26,10 +26,27 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/images/logo-light.png" type="image/png" />
       </head>
-      <body className="next-wrapper">
+      <body className="next-wrapper" style={{ margin: 0 }}>
         <div className="next-container">
           <StoreProvider>
-            <ConfigProvider locale={vi_VN}>
+            <ConfigProvider
+              locale={vi_VN}
+              theme={{
+                token: {
+                  colorPrimary: "#17252A",
+                  colorPrimaryHover: "#2B7A78",
+                  colorPrimaryActive: "#17252A",
+                  borderRadius: 13,
+                },
+                components: {
+                  Button: {
+                    colorPrimary: "#17252A",
+                    colorPrimaryHover: "#2B7A78",
+                    colorPrimaryActive: "#17252A",
+                  },
+                },
+              }}
+            >
               <StyledComponentsRegistry>
                 <LayoutApp>
                   <Header />

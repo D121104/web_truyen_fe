@@ -94,3 +94,20 @@ export interface IBookChapter {
   book: IBook;
   chapters: IChapter[];
 }
+
+export interface INotification {
+  _id?: string;
+  senderId?: string;
+  type: string;
+  content: string;
+  receiverId: string;
+  options: {
+    bookId?: string;
+  };
+  isActive?: boolean;
+  createdBy?: string;
+  isDeleted?: boolean;
+  deletedAt?: boolean | null;
+  createdAt?: string;
+  updatedAt?: string;
+}

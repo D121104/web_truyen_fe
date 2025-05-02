@@ -1,13 +1,9 @@
-import { Button } from 'antd';
+import Content from "@/components/client/Content/Content";
 
 export default function Home() {
   return (
     <div>
-      <h1>Home</h1>
-      <p>Welcome to the home page!</p>
-      <div>
-        <Button type='primary' >Add new</Button>
-      </div>
+      <Content></Content>
     </div>
   );
 }
