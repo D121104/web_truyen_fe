@@ -49,6 +49,7 @@ import classNames from "classnames";
 import { MenuProps } from "antd/lib";
 import CategoryDropdown from "@/components/client/Header/Category.dropdown";
 import RankingDropdown from "@/components/client/Header/Ranking.dropdown";
+import ManageUser from "./User.manage";
 // import socket from "@/utils/socket";
 const cx = classnames.bind(styles);
 
@@ -146,7 +147,7 @@ const Header: React.FC = () => {
       key: "manage-account",
       icon: <ContactsOutlined />,
     },
-    userRole !== "NORMAL" && {
+    userRole !== "USER" && {
       label: <Link href={"/admin"}>Trang Quản Trị</Link>,
       key: "admin",
       icon: <DashOutlined />,
@@ -270,6 +271,7 @@ const Header: React.FC = () => {
           </div>
         </div>
       )}
+      <ManageUser open={open} setOpen={setOpen} />
     </div>
   );
 };

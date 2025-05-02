@@ -54,7 +54,7 @@ const UpdateUserPassword = (props: any) => {
   //     }
   //     setLoading(true);
   //     const res = await updateUserPassword(userId, values);
-  //     if (res.statusCode === 200) {
+  //     if (res.code === 200) {
   //       setLoading(false);
   //       message.success("Thay đổi mật khẩu thành công!");
   //     } else {

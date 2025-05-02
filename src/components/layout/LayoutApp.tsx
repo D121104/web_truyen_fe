@@ -8,23 +8,24 @@ import { useAppSelector } from "@/lib/redux/hooks";
 // import socket from "@/utils/socket";
 
 interface IProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
 const LayoutApp = (props: IProps) => {
-    const { children } = props;
-    const dispatch = useAppDispatch();
-    const pathname = usePathname();
-    //   useEffect(() => {
-    //     socket.on("notification", (payload) => {
-    //       console.log("Received notification:", payload);
-    //     });
-    //   }, []);
-    useEffect(() => {
-        dispatch(fetchAccount());
-    }, [pathname]);
+  const { children } = props;
+  const dispatch = useAppDispatch();
+  const pathname = usePathname();
+  //   useEffect(() => {
+  //     socket.on("notification", (payload) => {
+  //       console.log("Received notification:", payload);
+  //     });
+  //   }, []);
+  useEffect(() => {
+    console.log("pathname", pathname);
+    dispatch(fetchAccount());
+  }, [pathname]);
 
-    return <>{children}</>;
+  return <>{children}</>;
 };
 
 export default LayoutApp;

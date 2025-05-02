@@ -11,14 +11,15 @@ import {
   notification,
 } from "antd";
 import classNames from "classnames/bind";
-// import styles from "../../../styles/Login.module.scss";
+import styles from "../../../styles/Login.module.scss";
 import Link from "next/link";
-// import { callLogin, createOtp } from "@/config/api";
+import { callLogin } from "@/config/api";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { setUserLoginInfo } from "@/lib/redux/slice/auth.slice";
 import { useRouter } from "next/navigation";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-// const cx = classNames.bind(styles);
+const cx = classNames.bind(styles);
 
 type FieldType = {
   username: string;
@@ -34,170 +35,154 @@ const Login: React.FC = () => {
   const isLoading = useAppSelector((state) => state.auth.isLoading);
   const isAuth = useAppSelector((state) => state.auth.isAuthenticated);
   const [show, setShow] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
 
-  // useEffect(() => {
-  //   if (!isLoading) {
-  //     if (isAuth) {
-  //       navigate.push("/");
-  //       notification.error({
-  //         message: "Bạn đã đăng nhập rồi!",
-  //       });
-  //       return;
-  //     } else {
-  //       setShow(true);
-  //     }
-  //   }
-  // }, [isLoading]);
+  useEffect(() => {
+    if (!isLoading) {
+      if (isAuth) {
+        navigate.push("/");
+        notification.error({
+          message: "Bạn đã đăng nhập rồi!",
+        });
+        return;
+      } else {
+        setShow(true);
+      }
+    }
+  }, [isLoading]);
 
-  // const handleClick = () => {
-  //   setIsForgotPassword(!isForgotPassword);
-  // };
+  const handleClick = () => {
+    setIsForgotPassword(!isForgotPassword);
+  };
 
-  // const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-  //   if (isForgotPassword) {
-  //     const { username } = values;
-  //     setLoading(true);
-  //     const res = await createOtp(username);
-  //     const data = await res.json();
+  const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
+    // if (isForgotPassword) {
+    //   const { username } = values;
+    //   setLoading(true);
+    //   const res = await createOtp(username);
+    //   const data = await res.json();
 
-  //     if (!res.ok) {
-  //       notification.error({
-  //         message: "Có lỗi xảy ra!",
-  //         description: data.message,
-  //       });
-  //       setLoading(false);
-  //       return;
-  //     }
+    //   if (!res.ok) {
+    //     notification.error({
+    //       message: "Có lỗi xảy ra!",
+    //       description: data.message,
+    //     });
+    //     setLoading(false);
+    //     return;
+    //   }
 
-  //     notification.success({
-  //       message: "Thành công!",
-  //       description:
-  //         "Vui lòng kiểm tra email của bạn (có thể mất từ 1 đến 5 phút)",
-  //     });
-  //     setLoading(false);
-  //   } else {
-  //     const { username, password } = values;
-  //     setLoading(true);
-  //     const res = await callLogin(username, password);
-
-  //     if (res?.data) {
-  //       localStorage.setItem("access_token", res.data.access_token);
-  //       localStorage.setItem("userId", res.data.user._id);
-  //       dispatch(setUserLoginInfo(res.data.user));
-  //       setLoading(false);
-  //       message.success("Đăng nhập tài khoản thành công!");
-  //       navigate.push("/");
-  //     } else {
-  //       setLoading(false);
-  //     }
-  //   }
-  // };
+    //   notification.success({
+    //     message: "Thành công!",
+    //     description:
+    //       "Vui lòng kiểm tra email của bạn (có thể mất từ 1 đến 5 phút)",
+    //   });
+    //   setLoading(false);
+    // } else {
+    const { username, password } = values;
+    setLoading(true);
+    console.log("username", username);
+    console.log("password", password);
+    const res = await callLogin({ username, password });
+    if (res?.data) {
+      console.log("OK");
+      localStorage.setItem("access_token", res.data.access_token);
+      localStorage.setItem("userId", res.data.user._id);
+      dispatch(setUserLoginInfo(res.data.user));
+      setLoading(false);
+      navigate.push("/");
+    } else {
+      setError(res?.message ?? "Có lỗi xảy ra! Vui lòng thử lại sau!");
+      setLoading(false);
+    }
+    // }
+  };
 
   return (
-    // show && (
-    //   <div className={cx("wrapper")}>
-    //     <div className={cx("container")}>
-    //       <h1 className={cx("title")}>
-    //         {isForgotPassword ? "Quên mật khẩu" : "Đăng nhập"}
-    //       </h1>
-    //       <Form name="basic" onFinish={onFinish} autoComplete="off">
-    //         <Form.Item
-    //           labelCol={{ span: 24 }}
-    //           label="Email (test_admin@gmail.com)"
-    //           name="username"
-    //           required
-    //           rules={[
-    //             { required: true, message: "Email không được để trống!" },
-    //           ]}
-    //         >
-    //           <Input />
-    //         </Form.Item>
+    show && (
+      <div className={cx("wrapper")}>
+        <div className={cx("container")}>
+          <h1 className={cx("title")}>
+            {isForgotPassword ? "Quên mật khẩu" : "Đăng nhập"}
+          </h1>
 
-    //         {isForgotPassword ? (
-    //           <></>
-    //         ) : (
-    //           <Form.Item
-    //             labelCol={{ span: 24 }}
-    //             label="Mật khẩu (123456)"
-    //             name="password"
-    //             rules={[
-    //               { required: true, message: "Mật khẩu không được để trống!" },
-    //             ]}
-    //           >
-    //             <Input.Password />
-    //           </Form.Item>
-    //         )}
+          {error && (
+            <div
+              style={{ color: "red", fontSize: "14px", marginBottom: "5px" }}
+            >
+              {error}
+            </div>
+          )}
 
-    //         <Form.Item>
-    //           <Button type="primary" htmlType="submit" loading={loading}>
-    //             {isForgotPassword ? "Xác nhận" : "Đăng nhập"}
-    //           </Button>
-    //         </Form.Item>
-    //         <Divider>Or</Divider>
+          <Form name="basic" onFinish={onFinish} autoComplete="off">
+            <Form.Item
+              labelCol={{ span: 24 }}
+              label="Email"
+              name="username"
+              required
+              rules={[
+                { required: true, message: "Email không được để trống!" },
+              ]}
+            >
+              <Input />
+            </Form.Item>
 
-    //         <a
-    //           href={`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/google`}
-    //           className={cx("social-login")}
-    //         >
-    //           <div className={cx("gsi-material-button")}>
-    //             <div className={cx("gsi-material-button-state")}></div>
-    //             <div className={cx("gsi-material-button-content-wrapper")}>
-    //               <div className={cx("gsi-material-button-icon")}>
-    //                 <svg
-    //                   version="1.1"
-    //                   xmlns="http://www.w3.org/2000/svg"
-    //                   viewBox="0 0 48 48"
-    //                   xmlnsXlink="http://www.w3.org/1999/xlink"
-    //                   style={{ display: "block" }}
-    //                 >
-    //                   <path
-    //                     fill="#EA4335"
-    //                     d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
-    //                   ></path>
-    //                   <path
-    //                     fill="#4285F4"
-    //                     d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
-    //                   ></path>
-    //                   <path
-    //                     fill="#FBBC05"
-    //                     d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
-    //                   ></path>
-    //                   <path
-    //                     fill="#34A853"
-    //                     d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
-    //                   ></path>
-    //                   <path fill="none" d="M0 0h48v48H0z"></path>
-    //                 </svg>
-    //               </div>
-    //               <span className={cx("gsi-material-button-contents")}>
-    //                 Sign in with Google
-    //               </span>
-    //               <span style={{ display: "none" }}>Sign in with Google</span>
-    //             </div>
-    //           </div>
-    //         </a>
+            {isForgotPassword ? (
+              <></>
+            ) : (
+              <Form.Item
+                labelCol={{ span: 24 }}
+                label="Mật khẩu"
+                name="password"
+                rules={[
+                  { required: true, message: "Mật khẩu không được để trống!" },
+                ]}
+              >
+                <Input.Password />
+              </Form.Item>
+            )}
 
-    //         <p className="text text-normal">
-    //           Chưa có tài khoản ?
-    //           <span>
-    //             <Link href="/register"> Đăng Ký </Link>
-    //           </span>
-    //         </p>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                {isForgotPassword ? "Xác nhận" : "Đăng nhập"}
+              </Button>
+            </Form.Item>
+            <Divider>Hoặc đăng nhập với</Divider>
 
-    //         <p style={{ marginTop: "10px" }} className="text text-normal">
-    //           {isForgotPassword ? "" : "Quên mật khẩu ?"}
-    //           <span>
-    //             <Link href="#" onClick={handleClick}>
-    //               {" "}
-    //               {isForgotPassword ? "Trở lại đăng nhập" : "Nhấn vào đây"}
-    //             </Link>
-    //           </span>
-    //         </p>
-    //       </Form>
-    //     </div>
-    //   </div>
-    // )
-    <></>
+            <a
+              href={`http://localhost:8080/api/auth/google`}
+              className={cx("social-login")}
+            >
+              <div className={cx("gsi-material-button")}>
+                <div className={cx("gsi-material-button-state")}></div>
+                <div className={cx("gsi-material-button-content-wrapper")}>
+                  <div className={cx("gsi-material-button-icon")}></div>
+                  <span className={cx("gsi-material-button-contents")}>
+                    Đăng nhập với Google
+                  </span>
+                  <span style={{ display: "none" }}>Đăng nhập với Google</span>
+                </div>
+              </div>
+            </a>
+
+            <p className="text text-normal">
+              <span>
+                <Link href="/register"> Đăng ký thành viên mới</Link>
+              </span>
+            </p>
+
+            {/* <p style={{ marginTop: "10px" }} className="text text-normal">
+              {isForgotPassword ? "" : "Quên mật khẩu ?"}
+              <span>
+                <Link href="#" onClick={handleClick}>
+                  {" "}
+                  {isForgotPassword ? "Trở lại đăng nhập" : "Nhấn vào đây"}
+                </Link>
+              </span>
+            </p> */}
+          </Form>
+        </div>
+      </div>
+    )
   );
 };
 

@@ -1,12 +1,13 @@
 import { setRefreshTokenAction } from "@/lib/redux/slice/auth.slice";
 import { makeStore } from "@/lib/redux/store";
 import {
-  User,
+  IUser,
   ILoginUser,
   IBackendRes,
   IGetLoginUser,
   IModelPaginate,
   INotification,
+  IAccount,
 } from "@/types/backend";
 import { notification, message } from "antd";
 
@@ -84,42 +85,33 @@ const fetchWithInterceptor = async (
 };
 
 // Auth API
-export async function loginUser(
-  payload: LoginPayload
-): Promise<IBackendRes<ILoginUser> | undefined> {
-  try {
-    const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(payload),
-    });
 
-    if (!res.ok) {
-      notification.error({
-        message: "Đăng nhập thất bại",
-        description: await res.json().then((data) => data.message),
-      });
-      return;
-    }
+export const callLogin = async ({
+  username,
+  password,
+}: {
+  username: string;
+  password: string;
+}): Promise<IBackendRes<IAccount>> => {
+  const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username,
+      password,
+    }),
+    credentials: "include",
+  });
 
-    const data: ILoginUser = await res.json();
-    return {
-      statusCode: res.status,
-      message: "Đăng nhập thành công",
-      data: data,
-    };
-  } catch (error) {
-    throw error.message;
-  }
-}
+  return await res.json();
+};
 
 export const callFetchAccount = async (
   accessToken = ""
 ): Promise<IBackendRes<IGetLoginUser> | undefined> => {
-  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/auth/account`, {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/auth/profile`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -159,7 +151,7 @@ export const logout = async (): Promise<void> => {
     },
     credentials: "include",
   });
-  if (res.statusCode === 400) {
+  if (res.code === 400) {
     notification.error({
       message: "Có lỗi xảy ra",
       description: res.message,

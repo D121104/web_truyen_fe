@@ -1,5 +1,5 @@
 export interface IBackendRes<T> {
-  statusCode: number | string;
+  code: number | string;
   message?: string;
   error?: string;
   data?: T;
@@ -13,6 +13,16 @@ export interface IModelPaginate<T> {
     total: number;
   };
   result: T[];
+}
+
+export interface IAccount {
+  access_token: string;
+  user: {
+    _id: string;
+    email: string;
+    name: string;
+    role: string;
+  };
 }
 
 export interface IUser {
