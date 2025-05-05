@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import type { FormProps } from "antd";
 import {
+  Avatar,
   Button,
   Checkbox,
   Divider,
@@ -18,6 +19,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { setUserLoginInfo } from "@/lib/redux/slice/auth.slice";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { GoogleCircleFilled } from "@ant-design/icons";
 
 const cx = classNames.bind(styles);
 
@@ -156,6 +158,7 @@ const Login: React.FC = () => {
                 <div className={cx("gsi-material-button-state")}></div>
                 <div className={cx("gsi-material-button-content-wrapper")}>
                   <div className={cx("gsi-material-button-icon")}></div>
+                  <GoogleCircleFilled style={{ fontSize: "25px" }} />
                   <span className={cx("gsi-material-button-contents")}>
                     Đăng nhập với Google
                   </span>

@@ -35,4 +35,23 @@ const BookCard: React.FC = () => {
   );
 };
 
+// const BookCardNews: React.FC = () => {
+//   const books = generateFakeBooks(10); // Tạo 10 sách giả
+
+//   return (
+//     <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+//       {books.map((book) => (
+//         <Card
+//           key={book.id}
+//           hoverable
+//           style={{ width: 240 }}
+//           cover={<img alt={book.title} src={book.cover} />}
+//         >
+//           <Meta title={book.title} description={book.description} />
+//         </Card>
+//       ))}
+//     </div>
+//   );
+// };
+
 export default BookCard;

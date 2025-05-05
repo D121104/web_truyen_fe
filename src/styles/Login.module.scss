@@ -29,7 +29,7 @@
     display: block;
     width: 150px;
     height: 3px;
-    background: #fb1616;
+    background: #2c3e50;
     margin-top: 5px;
   }
 }
@@ -96,6 +96,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: top;
+  margin-left: -55px;
 }
 
 .gsi-material-button .gsi-material-button-state {

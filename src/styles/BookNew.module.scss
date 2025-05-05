@@ -1,0 +1,113 @@
+.bookContainer {
+  background-color: white; /* Màu nền */
+  color: #2c3e50; /* Màu chữ */
+  border-radius: 8px;
+  max-width: 800px; /* Giới hạn chiều rộng tối đa */
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  background-color: #3aafa9;
+  color: #2c3e50;
+
+  h2 {
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px;
+    margin: 0px 0 0 -10px;
+  }
+}
+
+.bookGrid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(150px, 1fr)
+  ); /* Giảm kích thước cột */
+  gap: 15px; /* Giảm khoảng cách giữa các card */
+  padding: 10px; /* Thêm padding cho grid */
+}
+
+.bookCard {
+  background-color: white; /* Màu nền card */
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.imageWrapper {
+  position: relative;
+}
+
+.bookImage {
+  width: 100%;
+  height: 200px; /* Giảm chiều cao ảnh */
+  object-fit: cover;
+}
+
+.overlay {
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  width: 175px;
+  background: rgba(0, 0, 0, 0.7); /* Lớp phủ màu đen trong suốt */
+  color: #fff; /* Màu chữ trắng */
+  padding: 8px; /* Giảm padding */
+  display: flex;
+  justify-content: center;
+  font-size: 13px; /* Giảm kích thước font */
+  gap: 10px;
+}
+
+.overlay span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.bookInfo {
+  padding: 8px; /* Giảm padding */
+
+  .bookTitle {
+    font-size: 16px; /* Giảm kích thước font */
+    font-weight: bold;
+    margin-top: -10px;
+    margin-bottom: 8px;
+    white-space: wrap;
+    text-overflow: ellipsis;
+    color: #2c3e50;
+
+    &:hover {
+      color: #f7444e; /* Màu chữ khi hover */
+      transition: all 0.3s ease; /* Hiệu ứng chuyển màu mượt mà */
+    }
+  }
+
+  .bookChapters {
+    font-size: 13px; /* Giảm kích thước font */
+    font-weight: 500;
+
+    p {
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .chapter {
+      display: flex;
+      justify-content: space-between; /* Đưa `chapter` và `time` ra hai bên */
+      color: #2c3e50; /* Màu chữ */
+
+      &:hover {
+        color: #3aafa9; /* Màu chữ khi hover */
+        transition: all 0.3s ease; /* Hiệu ứng chuyển màu mượt mà */
+      }
+    }
+  }
+}

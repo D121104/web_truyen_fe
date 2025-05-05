@@ -4,6 +4,8 @@ import React from "react";
 import { Carousel } from "antd";
 import { faker } from "@faker-js/faker";
 import styles from "@/styles/BookCarousel.module.scss"; // Import file SCSS
+import Link from "next/link";
+import { ClockCircleOutlined } from "@ant-design/icons";
 
 const generateFakeBooks = (count: number) => {
   return Array.from({ length: count }, () => ({
@@ -36,12 +38,22 @@ const TrendingBook: React.FC = () => (
       >
         <div className={styles.cardContainer}>
           <div className={styles.card}>
-            <img src={book.cover} alt={book.title} className={styles.image} />
+            <Link href={`/books/${book.id}`} className={styles.link}>
+              <img src={book.cover} alt={book.title} className={styles.image} />
+            </Link>
+
             <div className={styles.overlay}>
-              <h3 className={styles.title}>{book.title}</h3>
+              <Link href={`/books/${book.id}`} className={styles.link}>
+                <h3 className={styles.title}>{book.title}</h3>
+              </Link>
+
               <div className={styles.infoRow}>
                 <p className={styles.chapter}>Chapter {book.chapter}</p>
-                <p className={styles.time}>{book.time}</p>
+
+                <p className={styles.time}>
+                  <ClockCircleOutlined style={{ marginRight: "5px" }} />
+                  {book.time}
+                </p>
               </div>
             </div>
           </div>

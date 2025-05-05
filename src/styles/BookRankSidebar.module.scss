@@ -1,0 +1,142 @@
+.sidebar {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+
+  .title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .view-all {
+    font-size: 14px;
+    color: #2c3e50;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.book-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.book-item {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.book-cover {
+  width: 60px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #eee;
+}
+
+.book-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.meta-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.book-title {
+  font-size: 16px;
+  margin-bottom: 8px;
+
+  &:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+    color: red !important;
+  }
+}
+
+.book-chapter {
+  &:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+    color: red !important;
+  }
+}
+
+.chapter-info {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+}
+
+.book-time {
+  font-size: 14px;
+  color: #999;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.continue-reading {
+  margin-top: 6px;
+
+  a {
+    font-size: 12px;
+    color: #666666;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.book-rank {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 20px;
+  color: #3aafa9;
+  font-weight: 600;
+}
+
+.book-view {
+  display: flex;
+  gap: 5px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+  color: #999;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
