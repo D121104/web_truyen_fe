@@ -12,9 +12,11 @@ import {
 } from "@ant-design/icons";
 import { Pagination } from "antd";
 import Link from "next/link";
+import { useAppSelector } from "@/lib/redux/hooks";
 
 const cx = classNames.bind(styles);
 const generateFakeBooks = (count: number) => {
+
   return Array.from({ length: count }, () => ({
     id: faker.string.uuid(),
     title: faker.lorem.words(5),
@@ -41,73 +43,81 @@ const generateFakeBooks = (count: number) => {
 
 const books = generateFakeBooks(36); // Tạo 8 sách giả
 
-const BookNew: React.FC = () => (
-  <div className={styles.bookContainer}>
-    <section className={cx("section")}>
-      <div className={cx("sectionHeader")}>
-        <StarFilled style={{ marginLeft: "30px", color: "#f0f0f0" }} />
-        <h2>Truyện mới cập nhật</h2>
-      </div>
-    </section>
-    <div className={styles.bookGrid}>
-      {books.map((book) => (
-        <div key={book.id} className={styles.bookCard}>
-          <Link href={`/books/${book.id}`} style={{ textDecoration: "none" }}>
-            <div className={styles.imageWrapper}>
-              <img
-                src={book.cover}
-                alt={book.title}
-                className={styles.bookImage}
-              />
-              <div className={styles.overlay}>
-                <span>
-                  <EyeFilled /> {book.views.toLocaleString()}
-                </span>
-                <span>
-                  <HeartFilled /> {book.likes}
-                </span>
-                <span>
-                  <MessageFilled /> {book.comments}
-                </span>
-              </div>
-            </div>
-          </Link>
 
-          <div className={styles.bookInfo}>
-            <Link
-              href={`/books/${book.id}`}
-              style={{ textDecoration: "none", color: "#1d1d1d" }}
-            >
-              <h3 className={styles.bookTitle}>{book.title}</h3>
+
+const BookNew: React.FC = () => {
+  const pageTitle = useAppSelector(
+    (state) => state.auth.pageTitle);
+
+
+  return (
+    <div className={styles.bookContainer}>
+      <section className={cx("section")}>
+        <div className={cx("sectionHeader")}>
+          <StarFilled style={{ marginLeft: "30px", color: "#f0f0f0" }} />
+          <h2>{pageTitle}</h2>
+        </div>
+      </section>
+      <div className={styles.bookGrid}>
+        {books.map((book) => (
+          <div key={book.id} className={styles.bookCard}>
+            <Link href={`/books/${book.id}`} style={{ textDecoration: "none" }}>
+              <div className={styles.imageWrapper}>
+                <img
+                  src={book.cover}
+                  alt={book.title}
+                  className={styles.bookImage}
+                />
+                <div className={styles.overlay}>
+                  <span>
+                    <EyeFilled /> {book.views.toLocaleString()}
+                  </span>
+                  <span>
+                    <HeartFilled /> {book.likes}
+                  </span>
+                  <span>
+                    <MessageFilled /> {book.comments}
+                  </span>
+                </div>
+              </div>
             </Link>
 
-            <div className={styles.bookChapters}>
-              {book.chapters.map((chapter, index) => (
-                <Link
-                  key={chapter.chapter}
-                  href={`/books/${book.id}/chapter/${chapter.chapter}`}
-                  style={{ textDecoration: "none", color: "#1d1d1d" }}
-                >
-                  <div className={styles.chapter}>
-                    <p>Chapter {chapter.chapter}</p>
-                    <p>{chapter.time}</p>
-                  </div>
-                </Link>
-              ))}
+            <div className={styles.bookInfo}>
+              <Link
+                href={`/books/${book.id}`}
+                style={{ textDecoration: "none", color: "#1d1d1d" }}
+              >
+                <h3 className={styles.bookTitle}>{book.title}</h3>
+              </Link>
+
+              <div className={styles.bookChapters}>
+                {book.chapters.map((chapter, index) => (
+                  <Link
+                    key={chapter.chapter}
+                    href={`/books/${book.id}/chapter/${chapter.chapter}`}
+                    style={{ textDecoration: "none", color: "#1d1d1d" }}
+                  >
+                    <div className={styles.chapter}>
+                      <p>Chapter {chapter.chapter}</p>
+                      <p>{chapter.time}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+      <Pagination
+        showQuickJumper
+        showSizeChanger={false}
+        defaultCurrent={2}
+        total={500}
+        align="center"
+        style={{ marginTop: "20px" }}
+      />
     </div>
-    <Pagination
-      showQuickJumper
-      showSizeChanger={false}
-      defaultCurrent={2}
-      total={500}
-      align="center"
-      style={{ marginTop: "20px" }}
-    />
-  </div>
-);
+  );
+}
 
 export default BookNew;

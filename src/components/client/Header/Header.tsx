@@ -118,7 +118,7 @@ const Header: React.FC = () => {
           if (res.data) {
             setNotifications(res.data.result as INotification[]);
           }
-        } catch (error) {}
+        } catch (error) { }
       };
 
       getNotification();
@@ -133,7 +133,7 @@ const Header: React.FC = () => {
     });
 
     return () => {
-      document.body.removeEventListener("click", () => {});
+      document.body.removeEventListener("click", () => { });
     };
   }, []);
 
@@ -188,7 +188,13 @@ const Header: React.FC = () => {
         </>
       ),
     },
-    { key: "follow", label: "THEO DÕI" },
+    {
+      key: "follow", label: (
+        <>
+          <Link href='/book/follow'>THEO DÕI</Link>
+        </>
+      )
+    },
     {
       key: "ranking",
       label: (
@@ -198,9 +204,7 @@ const Header: React.FC = () => {
         </>
       ),
     },
-    { key: "boy", label: "CON TRAI" },
-    { key: "girl", label: "CON GÁI" },
-    { key: "manhwa", label: "MANHWA 18" },
+
     { key: "group", label: "GROUP" },
   ];
   const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
@@ -231,7 +235,7 @@ const Header: React.FC = () => {
                 </Badge>
               </Space>
               {isAuth ? (
-                <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, paddingRight: 20 }}>
                   <Avatar size="default" icon={<UserOutlined />} />
                   <Dropdown
                     menu={{ items: itemsDropdown as any }}
@@ -240,10 +244,6 @@ const Header: React.FC = () => {
                   >
                     <Space style={{ cursor: "pointer" }}>
                       <span>Xin chào {user?.name}</span>
-                      <Avatar>
-                        {" "}
-                        {user?.name?.substring(0, 2)?.toUpperCase()}{" "}
-                      </Avatar>
                     </Space>
                   </Dropdown>
                 </div>

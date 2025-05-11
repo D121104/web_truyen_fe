@@ -21,6 +21,7 @@ interface IState {
     name: string;
     role: string;
   };
+  pageTitle: string;
   activeMenu: string;
 }
 
@@ -35,6 +36,7 @@ const initialState: IState = {
     name: "",
     role: "",
   },
+  pageTitle: 'Truyện mới cập nhật',
 
   activeMenu: "home",
 };
@@ -65,6 +67,9 @@ export const accountSlice = createSlice({
         name: "",
         role: "",
       };
+    },
+    setPageTitle: (state, action) => {
+      state.pageTitle = action.payload; // Cập nhật pageTitle
     },
     setRefreshTokenAction: (state, action) => {
       state.isRefreshToken = action.payload?.status ?? false;
@@ -106,6 +111,7 @@ export const {
   setUserLoginInfo,
   setLogoutAction,
   setRefreshTokenAction,
+  setPageTitle
 } = accountSlice.actions;
 
 export default accountSlice.reducer;

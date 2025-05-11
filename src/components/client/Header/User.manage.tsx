@@ -131,20 +131,11 @@ const ManageUser = (props: IProps) => {
 
   const items: TabsProps["items"] = [
     {
-      key: "user-resume",
-      label: `Danh sách CV đã nộp`,
-      //   children: <UserResume />,
-    },
-    {
       key: "user-password",
       label: `Thay đổi mật khẩu`,
       children: <UpdateUserPassword />,
     },
-    {
-      key: "user-subscriber",
-      label: `Đăng ký nhận công việc theo kỹ năng`,
-      //   children: <Subscriber />,
-    },
+
   ];
 
   return (

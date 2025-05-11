@@ -13,7 +13,7 @@ import { Footer } from "antd/es/layout/layout";
 // import socket from "@/utils/socket";
 
 export const metadata: Metadata = {
-  title: "Glints - Kênh Tuyển Dụng - Trang Tìm Kiếm Việc Làm Uy Tín",
+  title: "Web Truyện",
 };
 
 export default function RootLayout({

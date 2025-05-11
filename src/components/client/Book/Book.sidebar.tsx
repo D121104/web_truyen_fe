@@ -31,7 +31,7 @@ const BookSidebar: React.FC = () => {
           <BookOutlined style={{ marginRight: "5px" }} />
           Truyện đang theo dõi
         </h2>
-        <Link href="/" className={cx("view-all")}>
+        <Link href="/book/follow" className={cx("view-all")}>
           Xem tất cả
         </Link>
       </div>
