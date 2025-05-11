@@ -41,7 +41,7 @@ const BookSidebar: React.FC = () => {
         {books.map((book) => (
           <React.Fragment key={book.id}>
             <div className={cx("book-item")}>
-              <Link href="/`books/${book.id}`}>">
+              <Link href={`/book/${book.id}`}>
                 {" "}
                 <img
                   src={book.cover}
@@ -51,7 +51,7 @@ const BookSidebar: React.FC = () => {
               </Link>
               <div className={cx("book-info")}>
                 <Link
-                  href={`/books/${book.id}`}
+                  href={`/book/${book.id}`}
                   className={cx("book-title")}
                   style={{
                     textDecoration: "none",
@@ -65,7 +65,7 @@ const BookSidebar: React.FC = () => {
 
                 {book.continueReading && (
                   <div className={cx("continue-reading")}>
-                    <Link href={`/books/${book.id}/chapter/${book.newChapter}`}>
+                    <Link href={`/book/${book.id}/chapter/${book.newChapter}`}>
                       Đọc tiếp Chapter {book.newChapter}
                     </Link>
                   </div>

@@ -16,7 +16,6 @@ import { useAppSelector } from "@/lib/redux/hooks";
 
 const cx = classNames.bind(styles);
 const generateFakeBooks = (count: number) => {
-
   return Array.from({ length: count }, () => ({
     id: faker.string.uuid(),
     title: faker.lorem.words(5),
@@ -36,6 +35,7 @@ const generateFakeBooks = (count: number) => {
     ],
     views: faker.number.int({ min: 1000, max: 100000 }),
     likes: faker.number.int({ min: 10, max: 1000 }),
+    follows: faker.number.int({ min: 100, max: 5000 }),
     comments: faker.number.int({ min: 10, max: 500 }),
     cover: faker.image.url({ width: 160, height: 200 }), // Hình ảnh giả
   }));
@@ -43,12 +43,8 @@ const generateFakeBooks = (count: number) => {
 
 const books = generateFakeBooks(36); // Tạo 8 sách giả
 
-
-
 const BookNew: React.FC = () => {
-  const pageTitle = useAppSelector(
-    (state) => state.auth.pageTitle);
-
+  const pageTitle = useAppSelector((state) => state.auth.pageTitle);
 
   return (
     <div className={styles.bookContainer}>
@@ -61,7 +57,7 @@ const BookNew: React.FC = () => {
       <div className={styles.bookGrid}>
         {books.map((book) => (
           <div key={book.id} className={styles.bookCard}>
-            <Link href={`/books/${book.id}`} style={{ textDecoration: "none" }}>
+            <Link href={`/book/${book.id}`} style={{ textDecoration: "none" }}>
               <div className={styles.imageWrapper}>
                 <img
                   src={book.cover}
@@ -73,7 +69,7 @@ const BookNew: React.FC = () => {
                     <EyeFilled /> {book.views.toLocaleString()}
                   </span>
                   <span>
-                    <HeartFilled /> {book.likes}
+                    <HeartFilled /> {book.follows}
                   </span>
                   <span>
                     <MessageFilled /> {book.comments}
@@ -84,7 +80,7 @@ const BookNew: React.FC = () => {
 
             <div className={styles.bookInfo}>
               <Link
-                href={`/books/${book.id}`}
+                href={`/book/${book.id}`}
                 style={{ textDecoration: "none", color: "#1d1d1d" }}
               >
                 <h3 className={styles.bookTitle}>{book.title}</h3>
@@ -94,7 +90,7 @@ const BookNew: React.FC = () => {
                 {book.chapters.map((chapter, index) => (
                   <Link
                     key={chapter.chapter}
-                    href={`/books/${book.id}/chapter/${chapter.chapter}`}
+                    href={`/book/${book.id}/chapter/${chapter.chapter}`}
                     style={{ textDecoration: "none", color: "#1d1d1d" }}
                   >
                     <div className={styles.chapter}>
@@ -118,6 +114,6 @@ const BookNew: React.FC = () => {
       />
     </div>
   );
-}
+};
 
 export default BookNew;

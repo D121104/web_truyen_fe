@@ -16,19 +16,19 @@
 }
 
 .cell {
-  font-size: 16px; // Kích thước chữ
-  color: #333; // Màu chữ mặc định
-  cursor: pointer; // Con trỏ chuột dạng pointer
-  transition: color 0.2s, transform 0.2s; // Hiệu ứng chuyển đổi
+  font-size: 16px !important; // Kích thước chữ
+  color: #333 !important; // Màu chữ mặc định
+  cursor: pointer !important; // Con trỏ chuột dạng pointer
+  transition: color 0.2s, transform 0.2s !important; // Hiệu ứng chuyển đổi
 
   &:hover {
-    color: red; // Chuyển sang màu đỏ khi hover
-    transform: scale(1.05); // Phóng to nhẹ khi hover
-    text-decoration: none; // Bỏ gạch chân khi hover
+    color: red !important; // Chuyển sang màu đỏ khi hover
+    transform: scale(1.05) !important; // Phóng to nhẹ khi hover
+    text-decoration: none !important; // Bỏ gạch chân khi hover
   }
 
   &.highlight {
-    color: red; // Màu đỏ cho các mục nổi bật
-    font-weight: bold; // In đậm
+    color: red !important; // Màu đỏ cho các mục nổi bật
+    font-weight: bold !important; // In đậm
   }
 }

@@ -38,17 +38,26 @@ const TrendingBook: React.FC = () => (
       >
         <div className={styles.cardContainer}>
           <div className={styles.card}>
-            <Link href={`/books/${book.id}`} className={styles.link}>
+            <Link href={`/book/${book.id}`} className={styles.link}>
               <img src={book.cover} alt={book.title} className={styles.image} />
             </Link>
 
             <div className={styles.overlay}>
-              <Link href={`/books/${book.id}`} className={styles.link}>
+              <Link href={`/book/${book.id}`} className={styles.link}>
                 <h3 className={styles.title}>{book.title}</h3>
               </Link>
 
               <div className={styles.infoRow}>
-                <p className={styles.chapter}>Chapter {book.chapter}</p>
+                <Link
+                  href={`/book/${book.id}/chapter/${book.chapter}`}
+                  style={{
+                    textDecoration: "none",
+                    color: "#cccccc",
+                    fontSize: "12px",
+                  }}
+                >
+                  <p className={styles.chapter}>Chapter {book.chapter}</p>
+                </Link>
 
                 <p className={styles.time}>
                   <ClockCircleOutlined style={{ marginRight: "5px" }} />

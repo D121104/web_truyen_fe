@@ -56,7 +56,7 @@ const BookRankSidebar: React.FC = () => {
                 {index + 1 < 10 ? "0" + (index + 1).toString() : index + 1}{" "}
               </div>
 
-              <Link href="/`books/${book.id}`}>">
+              <Link href={`/book/${book.id}`}>
                 {" "}
                 <img
                   src={book.cover}
@@ -66,7 +66,7 @@ const BookRankSidebar: React.FC = () => {
               </Link>
               <div className={cx("book-info")}>
                 <Link
-                  href={`/books/${book.id}`}
+                  href={`/book/${book.id}`}
                   className={cx("book-title")}
                   style={{
                     textDecoration: "none",
@@ -79,7 +79,7 @@ const BookRankSidebar: React.FC = () => {
                 </Link>
                 <div className={cx("chapter-info")}>
                   <Link
-                    href={`/books/${book.id}/chapter/${book.chapter}`}
+                    href={`/book/${book.id}/chapter/${book.chapter}`}
                     className={cx("book-chapter")}
                     style={{
                       textDecoration: "none",

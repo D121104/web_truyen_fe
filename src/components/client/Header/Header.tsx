@@ -35,6 +35,7 @@ import Icon, {
   TagsFilled,
   HomeFilled,
   ClockCircleFilled,
+  TeamOutlined,
 } from "@ant-design/icons";
 import { fetchNotifications, logout } from "@/config/api";
 import { setLogoutAction } from "@/lib/redux/slice/auth.slice";
@@ -118,7 +119,7 @@ const Header: React.FC = () => {
           if (res.data) {
             setNotifications(res.data.result as INotification[]);
           }
-        } catch (error) { }
+        } catch (error) {}
       };
 
       getNotification();
@@ -133,7 +134,7 @@ const Header: React.FC = () => {
     });
 
     return () => {
-      document.body.removeEventListener("click", () => { });
+      document.body.removeEventListener("click", () => {});
     };
   }, []);
 
@@ -174,8 +175,10 @@ const Header: React.FC = () => {
       icon: <TagsFilled />,
       label: (
         <>
-          THỂ LOẠI <CaretDownFilled style={{ fontSize: 12 }} />
-          <CategoryDropdown />
+          <Link href="/search">
+            THỂ LOẠI <CaretDownFilled style={{ fontSize: 12 }} />
+            <CategoryDropdown />
+          </Link>
         </>
       ),
     },
@@ -184,16 +187,17 @@ const Header: React.FC = () => {
       icon: <ClockCircleFilled />,
       label: (
         <>
-          LỊCH SỬ <CaretDownFilled style={{ fontSize: 12 }} />
+          <Link href="/history">LỊCH SỬ</Link>
         </>
       ),
     },
     {
-      key: "follow", label: (
+      key: "follow",
+      label: (
         <>
-          <Link href='/book/follow'>THEO DÕI</Link>
+          <Link href="/follow">THEO DÕI</Link>
         </>
-      )
+      ),
     },
     {
       key: "ranking",
@@ -205,7 +209,15 @@ const Header: React.FC = () => {
       ),
     },
 
-    { key: "group", label: "GROUP" },
+    {
+      key: "group",
+      label: (
+        <>
+          <TeamOutlined style={{ fontSize: 14, marginRight: 10 }} />
+          NHÓM DỊCH
+        </>
+      ),
+    },
   ];
   const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
     console.log(info?.source, value);
@@ -235,7 +247,14 @@ const Header: React.FC = () => {
                 </Badge>
               </Space>
               {isAuth ? (
-                <div style={{ display: "flex", alignItems: "center", gap: 10, paddingRight: 20 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    paddingRight: 20,
+                  }}
+                >
                   <Avatar size="default" icon={<UserOutlined />} />
                   <Dropdown
                     menu={{ items: itemsDropdown as any }}
@@ -260,7 +279,7 @@ const Header: React.FC = () => {
             </Flex>
           </div>
           <div className="header-bottom">
-            <Flex justify="center" align="center">
+            <Flex justify="center" align="center" gap={20}>
               <Menu
                 onClick={onClick}
                 selectedKeys={[current]}

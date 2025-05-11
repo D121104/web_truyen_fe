@@ -46,17 +46,25 @@ const CategoryDropdown: React.FC = () => {
       {categories.map((row, rowIndex) => (
         <div key={rowIndex} className={styles.row}>
           {row.map((item, colIndex) => (
-            <div key={colIndex} className={styles.cell}>
+            <Link
+              key={colIndex}
+              href={`/search/${item}`}
+              className={styles.cell}
+            >
               {item}
-            </div>
+            </Link>
           ))}
         </div>
       ))}
     </div>
   );
+
   return (
     <Dropdown overlay={overlay} trigger={["hover"]} placement="bottom">
-      <Link href=""></Link>
+      <Link
+        href={`/search/${categories[0][0]}`}
+        className={styles.dropdownLink}
+      ></Link>
     </Dropdown>
   );
 };
