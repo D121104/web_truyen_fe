@@ -1,75 +1,112 @@
 .chapterContainer {
-  padding: 1rem;
-  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background-color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chapterHeader {
+  display: flex;
+  justify-content: center;
+  background-color: #fff;
+  align-items: center;
+  width: 80%;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.navigation {
+  display: flex;
+  gap: 10px;
+
+  .icon {
+    font-size: 20px;
+    background-color: #fff;
+    color: #f28076;
+    border: #fff 1px solid;
+    cursor: pointer;
+  }
+
+  .navButton {
+    background-color: #3376bc;
+    border: none;
+    border-radius: 4px;
+    padding: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: #4361ee;
+    }
+  }
 }
 
 .chapterInfo {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 800px;
-  margin: 0 auto;
+  justify-content: center;
+  width: 25%;
+  padding: 10px;
+
+  .chapterSelect {
+    font-size: 16px;
+    padding: 5px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background-color: #ffffff;
+    width: 100%;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.3s;
+
+    &:hover {
+      border-color: #adb5bd;
+    }
+  }
 }
 
-.chapterNumber {
-  font-size: 1.1rem;
-  color: #333;
-  font-weight: 500;
-}
-
-.followCheckbox {
+.followButton {
+  background-color: #28a745;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 16px;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 8px;
   cursor: pointer;
-
-  input {
-    opacity: 0;
-    position: absolute;
-
-    &:checked + .checkmark {
-      background-color: #1890ff;
-      border-color: #1890ff;
-
-      &::after {
-        display: block;
-      }
-    }
-  }
-
-  .checkmark {
-    position: relative;
-    height: 18px;
-    width: 18px;
-    border: 2px solid #666;
-    border-radius: 4px;
-
-    &::after {
-      content: "";
-      position: absolute;
-      left: 4px;
-      top: 1px;
-      width: 5px;
-      height: 10px;
-      border: solid white;
-      border-width: 0 2px 2px 0;
-      transform: rotate(45deg);
-      display: none;
-    }
-  }
-
-  .labelText {
-    color: #666;
-    font-size: 0.95rem;
-    transition: color 0.2s;
-  }
+  transition: background-color 0.3s;
 
   &:hover {
-    .labelText {
-      color: #1890ff;
-    }
-    .checkmark {
-      border-color: #1890ff;
-    }
+    background-color: #218838;
+  }
+
+  svg {
+    font-size: 18px;
+  }
+
+  .chapterContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .chapterImage {
+    width: 100%;
+    height: 100%;
   }
 }
