@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { callFetchAccount } from "@/config/api";
 
-// First, create the thunk
 export const fetchAccount = createAsyncThunk(
   "account/fetchAccount",
   async () => {
@@ -36,7 +35,7 @@ const initialState: IState = {
     name: "",
     role: "",
   },
-  pageTitle: 'Truyện mới cập nhật',
+  pageTitle: "Truyện mới cập nhật",
 
   activeMenu: "home",
 };
@@ -111,7 +110,7 @@ export const {
   setUserLoginInfo,
   setLogoutAction,
   setRefreshTokenAction,
-  setPageTitle
+  setPageTitle,
 } = accountSlice.actions;
 
 export default accountSlice.reducer;

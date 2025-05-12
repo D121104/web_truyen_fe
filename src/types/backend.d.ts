@@ -67,6 +67,27 @@ export interface IBook {
   users?: User[];
 }
 
+export interface IComment {
+  _id?: string;
+  content: string;
+  book: string;
+  user: {
+    _id: string;
+    name: string;
+  };
+  parentId?: string;
+  left?: number;
+  right?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ICreateComment {
+  content: string;
+  parentId?: string;
+  bookId: string;
+}
+
 export interface ICategory {
   _id?: string;
   name: string;

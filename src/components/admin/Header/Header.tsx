@@ -164,63 +164,6 @@ const Header: React.FC = () => {
       icon: <LogoutOutlined />,
     },
   ];
-  const menuItems = [
-    {
-      key: "home",
-      icon: <HomeFilled />,
-      label: <Link href={"/"}>TRANG CHỦ</Link>,
-    },
-    {
-      key: "category",
-      icon: <TagsFilled />,
-      label: (
-        <>
-          <Link href="/search">
-            THỂ LOẠI <CaretDownFilled style={{ fontSize: 12 }} />
-            <CategoryDropdown />
-          </Link>
-        </>
-      ),
-    },
-    {
-      key: "history",
-      icon: <ClockCircleFilled />,
-      label: (
-        <>
-          <Link href="/history">LỊCH SỬ</Link>
-        </>
-      ),
-    },
-    {
-      key: "follow",
-      label: (
-        <>
-          <Link href="/follow">THEO DÕI</Link>
-        </>
-      ),
-    },
-    {
-      key: "ranking",
-      label: (
-        <>
-          XẾP HẠNG <CaretDownFilled style={{ fontSize: 12 }} />
-          <RankingDropdown></RankingDropdown>
-        </>
-      ),
-    },
-
-    {
-      key: "group",
-      label: (
-        <>
-          <TeamOutlined style={{ fontSize: 14, marginRight: 10 }} />
-          NHÓM DỊCH
-        </>
-      ),
-    },
-  ];
-  const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
-    console.log(info?.source, value);
 
   const onClick: MenuProps["onClick"] = (e) => {
     console.log("click ", e);
@@ -235,12 +178,6 @@ const Header: React.FC = () => {
         <div>
           <div className={cx("header-top")}>
             <Flex justify="flex-end" gap="large">
-              <Search
-                style={{ width: 300 }}
-                placeholder="input search text"
-                onSearch={(value) => onSearch(value)}
-                enterButton
-              />
               <Space size="middle">
                 <Badge count={5}>
                   <Avatar size="default" icon={<BellFilled />} />
@@ -286,16 +223,6 @@ const Header: React.FC = () => {
                   </Link>
                 </Flex>
               )}
-            </Flex>
-          </div>
-          <div className="header-bottom">
-            <Flex justify="center" align="center" gap={20}>
-              <Menu
-                onClick={onClick}
-                selectedKeys={[current]}
-                mode="horizontal"
-                items={menuItems}
-              />
             </Flex>
           </div>
         </div>

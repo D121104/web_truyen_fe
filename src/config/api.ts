@@ -8,15 +8,12 @@ import {
   IModelPaginate,
   INotification,
   IAccount,
+  IComment,
+  ICreateComment,
 } from "@/types/backend";
 import { notification, message } from "antd";
 
 const BACKEND_URL = "http://localhost:8080";
-
-interface LoginPayload {
-  email: string;
-  password: string;
-}
 
 interface FetchOptions extends RequestInit {
   headers: {
@@ -108,6 +105,19 @@ export const callLogin = async ({
   return await res.json();
 };
 
+export const callRegister = async (body: IUser) => {
+  const res = await fetch(`${BACKEND_URL}/api/auth/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  return data;
+};
+
 export const callFetchAccount = async (
   accessToken = ""
 ): Promise<IBackendRes<IGetLoginUser> | undefined> => {
@@ -177,6 +187,82 @@ export const fetchNotifications = async ({
       current,
       pageSize,
     }),
+  });
+  return res;
+};
+
+// api comments
+
+export const getComments = async ({
+  current = 1,
+  bookId = "",
+  pageSize = 30,
+  sort = "-createdAt",
+}): Promise<IBackendRes<IModelPaginate<IComment>>> => {
+  const res = await fetch(
+    `${BACKEND_URL}/api/comments/by-book/${bookId}?current=${current}&pageSize=${pageSize}&sort=${sort}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  const data = await res.json();
+
+  return data;
+};
+
+export const createComment = async (body: ICreateComment) => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/comments`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  return res;
+};
+
+export const getCommentsByParent = async ({
+  current = 1,
+  pageSize = 1,
+  parentId = "",
+  sort = "-createdAt",
+}): Promise<IBackendRes<IModelPaginate<IComment>>> => {
+  const res = await fetch(
+    `${BACKEND_URL}/api/comments/parent/${parentId}?current=${current}&pageSize=${pageSize}&sort=${sort}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  const data = await res.json();
+  return data;
+};
+
+export const deleteComment = async (id: string) => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/comments/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  return res;
+};
+
+// api otps
+
+export const createOtp = async (email: string): Promise<Response> => {
+  const res = await fetch(`${BACKEND_URL}/api/otps`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email }),
   });
   return res;
 };

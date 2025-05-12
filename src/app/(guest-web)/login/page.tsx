@@ -14,12 +14,13 @@ import {
 import classNames from "classnames/bind";
 import styles from "../../../styles/Login.module.scss";
 import Link from "next/link";
-import { callLogin } from "@/config/api";
+import { callLogin, createOtp } from "@/config/api";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { setUserLoginInfo } from "@/lib/redux/slice/auth.slice";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { GoogleCircleFilled } from "@ant-design/icons";
+import { toast } from "react-toastify";
 
 const cx = classNames.bind(styles);
 
@@ -58,45 +59,37 @@ const Login: React.FC = () => {
   };
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    // if (isForgotPassword) {
-    //   const { username } = values;
-    //   setLoading(true);
-    //   const res = await createOtp(username);
-    //   const data = await res.json();
+    setError("");
+    if (isForgotPassword) {
+      const { username } = values;
+      setLoading(true);
+      const res = await createOtp(username);
+      const data = await res.json();
 
-    //   if (!res.ok) {
-    //     notification.error({
-    //       message: "Có lỗi xảy ra!",
-    //       description: data.message,
-    //     });
-    //     setLoading(false);
-    //     return;
-    //   }
+      if (!res.ok) {
+        setError(data.message);
+        setLoading(false);
+        return;
+      }
 
-    //   notification.success({
-    //     message: "Thành công!",
-    //     description:
-    //       "Vui lòng kiểm tra email của bạn (có thể mất từ 1 đến 5 phút)",
-    //   });
-    //   setLoading(false);
-    // } else {
-    const { username, password } = values;
-    setLoading(true);
-    console.log("username", username);
-    console.log("password", password);
-    const res = await callLogin({ username, password });
-    if (res?.data) {
-      console.log("OK");
-      localStorage.setItem("access_token", res.data.access_token);
-      localStorage.setItem("userId", res.data.user._id);
-      dispatch(setUserLoginInfo(res.data.user));
+      toast.success("Đã gửi mã xác nhận đến email của bạn!");
       setLoading(false);
-      navigate.push("/");
     } else {
-      setError(res?.message ?? "Có lỗi xảy ra! Vui lòng thử lại sau!");
-      setLoading(false);
+      const { username, password } = values;
+      setLoading(true);
+      const res = await callLogin({ username, password });
+      if (res?.data) {
+        localStorage.setItem("access_token", res.data.access_token);
+        localStorage.setItem("userId", res.data.user._id);
+        dispatch(setUserLoginInfo(res.data.user));
+        setLoading(false);
+        toast.success("Đăng nhập thành công!");
+        navigate.push("/");
+      } else {
+        setError(res?.message ?? "Có lỗi xảy ra! Vui lòng thử lại sau!");
+        setLoading(false);
+      }
     }
-    // }
   };
 
   return (
@@ -173,15 +166,14 @@ const Login: React.FC = () => {
               </span>
             </p>
 
-            {/* <p style={{ marginTop: "10px" }} className="text text-normal">
-              {isForgotPassword ? "" : "Quên mật khẩu ?"}
+            <p style={{ marginTop: "10px" }} className="text text-normal">
               <span>
                 <Link href="#" onClick={handleClick}>
                   {" "}
-                  {isForgotPassword ? "Trở lại đăng nhập" : "Nhấn vào đây"}
+                  {isForgotPassword ? "Đăng nhập" : "Quên mật khẩu"}
                 </Link>
               </span>
-            </p> */}
+            </p>
           </Form>
         </div>
       </div>
