@@ -25,12 +25,9 @@ const cx = classnames.bind(styles);
 type MenuItem = Required<MenuProps>["items"][number];
 
 const TranslatorPage = () => {
-  const dispatch = useAppDispatch();
-  const open = useAppSelector((state) => state.auth.openAddBook);
+  const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    dispatch(setOpenAddBook(false));
-  }, []);
+  const dispatch = useAppDispatch();
 
   const items: MenuItem[] = [
     { key: "1", icon: <PieChartOutlined />, label: "Thành viên" },
@@ -40,7 +37,7 @@ const TranslatorPage = () => {
       icon: <MailOutlined />,
       children: [
         { key: "2", label: "Danh sách truyện" },
-        { key: "3", label: "Thêm truyện", onClick: () => setOpenAddBook(true) },
+        { key: "3", label: "Thêm truyện", onClick: () => setOpen(true) },
       ],
     },
   ];
@@ -64,7 +61,7 @@ const TranslatorPage = () => {
           <div className={cx("contentTitle")}>Truyện của nhóm</div>
           <div className={cx("contentList")}>
             <BookList />
-            {open && <AddBookModal />}
+            {open && <AddBookModal open={open} setOpen={setOpen} />}
           </div>
         </div>
       </div>

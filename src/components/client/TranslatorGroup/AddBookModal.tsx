@@ -1,42 +1,95 @@
 import React, { useEffect, useState } from "react";
-import { Button, Modal } from "antd";
-import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import { Button, Form, Input, Modal } from "antd";
+import { useAppDispatch } from "@/lib/redux/hooks";
 import { setOpenAddBook, setPageTitle } from "@/lib/redux/slice/auth.slice";
+import UploadImg from "../Upload/Upload";
 
-const AddBookModal: React.FC = () => {
+interface IProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}
+
+const AddBookModal: React.FC<IProps> = (props: IProps) => {
+  const { open, setOpen } = props;
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState("Content of the modal");
+  const [form] = Form.useForm(); // Sử dụng Ant Design Form instance
   const dispatch = useAppDispatch();
-  const open = useAppSelector((state) => state.auth.openAddBook);
 
-  const handleOk = () => {
-    setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    setTimeout(() => {
-      dispatch(setOpenAddBook(false));
-      setConfirmLoading(false);
-    }, 2000);
+  const handleOk = async () => {
+    try {
+      // Validate và lấy giá trị từ form
+      const values = await form.validateFields();
+      console.log("Form values:", values);
+
+      // Gửi dữ liệu lên server hoặc xử lý logic
+      setConfirmLoading(true);
+      setTimeout(() => {
+        setOpen(false);
+        setConfirmLoading(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Validation failed:", error);
+    }
   };
 
   const handleCancel = () => {
-    console.log("Clicked cancel button");
-    dispatch(setOpenAddBook(false));
+    setOpen(false);
   };
 
   useEffect(() => {
     dispatch(setPageTitle("Thêm truyện"));
-  }, []);
+  }, [dispatch]);
 
   return (
     <>
       <Modal
-        title="Title"
+        title={`Thêm truyện`}
         open={open}
-        onOk={handleOk}
+        onOk={handleOk} // Gọi handleOk khi nhấn OK
         confirmLoading={confirmLoading}
         onCancel={handleCancel}
       >
-        <p>{modalText}</p>
+        <Form
+          form={form} // Gắn form instance
+          name="wrap"
+          labelCol={{ flex: "110px" }}
+          labelAlign="left"
+          labelWrap
+          wrapperCol={{ flex: 1 }}
+          colon={false}
+          style={{ maxWidth: 600 }}
+        >
+          <Form.Item
+            label="Tên truyện"
+            name="title"
+            rules={[{ required: true, message: "Vui lòng nhập tên truyện!" }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Tác giả"
+            name="author"
+            rules={[{ required: true, message: "Vui lòng nhập tác giả!" }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item label="Mô tả" name="description">
+            <Input.TextArea />
+          </Form.Item>
+
+          <Form.Item
+            label="Bìa truyện"
+            name="cover"
+          >
+            <UploadImg
+              onUploadSuccess={(url: string) => {
+                form.setFieldsValue({ cover: url });
+              }}
+            />
+          </Form.Item>
+        </Form>
       </Modal>
     </>
   );
