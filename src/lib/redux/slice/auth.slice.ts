@@ -22,6 +22,7 @@ interface IState {
   };
   pageTitle: string;
   activeMenu: string;
+  openAddBook: boolean;
 }
 
 const initialState: IState = {
@@ -38,6 +39,7 @@ const initialState: IState = {
   pageTitle: "Truyện mới cập nhật",
 
   activeMenu: "home",
+  openAddBook: false,
 };
 
 export const accountSlice = createSlice({
@@ -73,6 +75,10 @@ export const accountSlice = createSlice({
     setRefreshTokenAction: (state, action) => {
       state.isRefreshToken = action.payload?.status ?? false;
       state.errorRefreshToken = action.payload?.message ?? "";
+    },
+
+    setOpenAddBook: (state, action) => {
+      state.openAddBook = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -111,6 +117,7 @@ export const {
   setLogoutAction,
   setRefreshTokenAction,
   setPageTitle,
+  setOpenAddBook,
 } = accountSlice.actions;
 
 export default accountSlice.reducer;

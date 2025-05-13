@@ -211,10 +211,12 @@ const Header: React.FC = () => {
 
     {
       key: "group",
+
       label: (
         <>
           <TeamOutlined style={{ fontSize: 14, marginRight: 10 }} />
-          NHÓM DỊCH
+
+          <Link href={"/translator"}>NHÓM DỊCH</Link>
         </>
       ),
     },
