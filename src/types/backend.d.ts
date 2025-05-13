@@ -56,9 +56,9 @@ export interface IGetLoginUser extends Omit<ILoginUser, "access_token"> {}
 
 export interface IBook {
   _id?: string;
-  book_title: string;
+  bookTitle: string;
   description?: string;
-  img_url?: string;
+  imgUrl?: string;
   view: number;
   author?: string;
   status: string;
@@ -115,9 +115,9 @@ export interface ITranslatorGroup {
   groupName: string;
   groupDescription: string;
   groupImgUrl: string;
-  groupStatus: string;
-  users: string[];
-  books: string[];
+  groupStatus?: string;
+  users?: string[];
+  books?: string[];
 }
 
 export interface IBookChapter {

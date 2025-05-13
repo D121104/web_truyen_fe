@@ -3,6 +3,8 @@ import { Button, Form, Input, Modal } from "antd";
 import { useAppDispatch } from "@/lib/redux/hooks";
 import { setOpenAddBook, setPageTitle } from "@/lib/redux/slice/auth.slice";
 import UploadImg from "../Upload/Upload";
+import { createBook } from "@/config/api";
+import { toast } from "react-toastify";
 
 interface IProps {
   open: boolean;
@@ -17,16 +19,27 @@ const AddBookModal: React.FC<IProps> = (props: IProps) => {
 
   const handleOk = async () => {
     try {
-      // Validate và lấy giá trị từ form
       const values = await form.validateFields();
       console.log("Form values:", values);
 
-      // Gửi dữ liệu lên server hoặc xử lý logic
       setConfirmLoading(true);
-      setTimeout(() => {
+
+      const res = await createBook(values);
+
+      if (res.code === 201) {
         setOpen(false);
+        form.resetFields();
         setConfirmLoading(false);
-      }, 2000);
+        toast.success("Thêm truyện thành công");
+        return;
+      }
+      const errorMessage = Array.isArray(res.message)
+        ? res.message.join(", ") // Nối các phần tử trong mảng bằng dấu phẩy
+        : res.message || "Thêm truyện thất bại"; // Nếu không phải mảng, lấy trực tiếp message
+
+      console.log("Error:", res);
+      toast.error(errorMessage);
+      setConfirmLoading(false);
     } catch (error) {
       console.error("Validation failed:", error);
     }
@@ -61,7 +74,7 @@ const AddBookModal: React.FC<IProps> = (props: IProps) => {
         >
           <Form.Item
             label="Tên truyện"
-            name="title"
+            name="bookTitle"
             rules={[{ required: true, message: "Vui lòng nhập tên truyện!" }]}
           >
             <Input />
@@ -75,17 +88,18 @@ const AddBookModal: React.FC<IProps> = (props: IProps) => {
             <Input />
           </Form.Item>
 
-          <Form.Item label="Mô tả" name="description">
+          <Form.Item
+            rules={[{ required: true, message: "Vui lòng nhập mô tả" }]}
+            label="Mô tả"
+            name="description"
+          >
             <Input.TextArea />
           </Form.Item>
 
-          <Form.Item
-            label="Bìa truyện"
-            name="cover"
-          >
+          <Form.Item label="Bìa truyện" name="imgUrl">
             <UploadImg
               onUploadSuccess={(url: string) => {
-                form.setFieldsValue({ cover: url });
+                form.setFieldsValue({ imgUrl: url });
               }}
             />
           </Form.Item>

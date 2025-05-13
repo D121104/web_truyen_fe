@@ -10,6 +10,8 @@ import {
   IAccount,
   IComment,
   ICreateComment,
+  IBook,
+  ITranslatorGroup,
 } from "@/types/backend";
 import { notification, message } from "antd";
 
@@ -264,5 +266,33 @@ export const createOtp = async (email: string): Promise<Response> => {
     },
     body: JSON.stringify({ email }),
   });
+  return res;
+};
+
+// api books
+export const createBook = async (body: IBook): Promise<any> => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/books`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  return res;
+};
+
+// api groups
+
+export const createGroup = async (body: ITranslatorGroup): Promise<any> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/translator.groups`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    }
+  );
   return res;
 };

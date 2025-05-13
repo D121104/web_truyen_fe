@@ -7,42 +7,30 @@ import { PlusOutlined } from "@ant-design/icons";
 import styles from "@/styles/TranslatorGroup.module.scss";
 import classNames from "classnames";
 import UploadImg from "@/components/client/Upload/Upload";
+import { createGroup } from "@/config/api";
+import { toast } from "react-toastify";
 
 const cx = classNames.bind(styles);
 
-type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
-const getBase64 = (file: FileType): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
-
 const RegisterGroup: React.FC = () => {
   const [form] = Form.useForm();
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const handlePreview = async (file: UploadFile) => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj as FileType);
+  const handleSubmit = async (values: any) => {
+    setLoading(true);
+
+    const res = await createGroup(values);
+
+    if (res.code === 201) {
+      form.resetFields();
+      setLoading(false);
+      toast.success("Tạo yêu cầu thành công, vui lòng chờ admin duyệt");
+      return;
     }
 
-    setPreviewImage(file.url || (file.preview as string));
-    setPreviewOpen(true);
+    toast.error(res.message.join(", "));
+    setLoading(false);
   };
-
-  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) =>
-    setFileList(newFileList);
-
-  const uploadButton = (
-    <button style={{ border: 0, background: "none" }} type="button">
-      <PlusOutlined />
-      <div style={{ marginTop: 8 }}>Upload</div>
-    </button>
-  );
   return (
     <div
       className={cx("container")}
@@ -63,6 +51,7 @@ const RegisterGroup: React.FC = () => {
         form={form}
         size="large"
         name=""
+        onFinish={handleSubmit}
         style={{
           width: "100%",
           alignItems: "center",
@@ -73,18 +62,28 @@ const RegisterGroup: React.FC = () => {
         <Form.Item
           label="Tên nhóm dịch"
           rules={[{ required: true, message: "Vui lòng nhập tên nhóm dịch" }]}
+          name="groupName"
         >
           <Input placeholder="" />
         </Form.Item>
-        <Form.Item label="Mô tả">
+        <Form.Item
+          rules={[{ required: true, message: "Vui lòng nhập mô tả" }]}
+          label="Mô tả"
+          name="groupDescription"
+        >
           <Input.TextArea placeholder="" />
         </Form.Item>
-        <Form.Item label="Ảnh nhóm dịch">
-          <UploadImg />
+        <Form.Item label="Ảnh nhóm dịch" name="groupImgUrl">
+          <UploadImg
+            onUploadSuccess={(url: string) => {
+              form.setFieldsValue({ groupImgUrl: url });
+            }}
+          />
         </Form.Item>
         <Form.Item>
           <Button
             type="primary"
+            htmlType="submit"
             style={{
               margin: "0 auto",
               justifyContent: "center",
