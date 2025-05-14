@@ -296,3 +296,102 @@ export const createGroup = async (body: ITranslatorGroup): Promise<any> => {
   );
   return res;
 };
+
+export const getGroups = async ({
+  current = 1,
+  pageSize = 10,
+}): Promise<IBackendRes<IModelPaginate<ITranslatorGroup>>> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/translator.groups?current=${current}&pageSize=${pageSize}&groupStatus=inactive`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return res;
+};
+
+export const updateGroup = async (body: ITranslatorGroup): Promise<any> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/translator.groups`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    }
+  );
+  return res;
+};
+
+export const getGroupsByUser = async ({
+  current = 1,
+  pageSize = 10,
+}): Promise<IBackendRes<IModelPaginate<ITranslatorGroup>>> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/translator.groups/groups/by-user?current=${current}&pageSize=${pageSize}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return res;
+};
+
+//api users
+
+export const getUsers = async ({
+  current = 1,
+  pageSize = 10,
+  name = "",
+}): Promise<IBackendRes<IModelPaginate<IUser>>> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/users?current=${current}&pageSize=${pageSize}${
+      name ? `&name=${new RegExp(name, "i")}` : ""
+    }`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return res;
+};
+
+export const createUser = async (body: IUser): Promise<any> => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/users`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  return res;
+};
+
+export const updateUser = async (body: IUser): Promise<any> => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/users`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  return res;
+};
+
+export const deleteUser = async (id: string): Promise<any> => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/users/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return res;
+};

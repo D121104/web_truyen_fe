@@ -6,6 +6,8 @@ import {
   UserOutlined,
   BookOutlined,
   DashboardOutlined,
+  UserSwitchOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { usePathname, useRouter } from "next/navigation";
@@ -27,6 +29,10 @@ const Sidebar: React.FC = () => {
         break;
       case "dashboard":
         router.push("/admin");
+        break;
+      case "translator-group":
+        router.push("/admin/translator-group");
+        break;
       default:
         break;
     }
@@ -37,6 +43,8 @@ const Sidebar: React.FC = () => {
       setSelectedKey("user");
     } else if (pathname.startsWith("/admin/book")) {
       setSelectedKey("book");
+    } else if (pathname.startsWith("/admin/translator-group")) {
+      setSelectedKey("translator-group");
     } else {
       setSelectedKey("dashboard");
     }
@@ -90,6 +98,11 @@ const Sidebar: React.FC = () => {
             key: "book",
             icon: <BookOutlined />,
             label: "Quản lý Book",
+          },
+          {
+            key: "translator-group",
+            icon: <TeamOutlined />,
+            label: "Quản lý nhóm dịch",
           },
         ]}
       />

@@ -1,8 +1,11 @@
 import {
   Button,
+  Card,
+  Col,
   Form,
   Input,
   Modal,
+  Row,
   Select,
   Skeleton,
   Table,
@@ -25,6 +28,11 @@ import dayjs from "dayjs";
 import { SmileOutlined } from "@ant-design/icons";
 import { FormProps } from "antd/lib";
 import { useAppSelector } from "@/lib/redux/hooks";
+import { ITranslatorGroup } from "@/types/backend";
+import { getGroupsByUser } from "@/config/api";
+import { toast } from "react-toastify";
+import Title from "antd/es/typography/Title";
+import { useRouter } from "next/router";
 
 interface IProps {
   open: boolean;
@@ -126,6 +134,136 @@ const UpdateUserPassword = (props: any) => {
   );
 };
 
+const UserGroups: React.FC = () => {
+  const [groups, setGroups] = useState<ITranslatorGroup[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchGroups = async () => {
+    setLoading(true);
+    try {
+      const res = await getGroupsByUser({ current: 1, pageSize: 10 });
+      if (res.code === 200) {
+        setGroups(res.data?.result as ITranslatorGroup[]);
+      } else {
+        toast.error("Không thể tải danh sách nhóm dịch");
+      }
+    } catch (error) {
+      toast.error("Đã xảy ra lỗi khi tải dữ liệu");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+
+  const handleClick = (group: ITranslatorGroup) => {
+    if (group.groupStatus === "inactive") {
+      toast.error("Nhóm dịch chưa được duyệt!");
+      return;
+    }
+
+    window.location.href = `/translator/${group._id}`;
+  };
+
+  return (
+    <div>
+      <Title level={3} style={{ textAlign: "center", marginBottom: 20 }}>
+        Nhóm dịch đang tham gia
+      </Title>
+      {groups.length === 0 ? (
+        <div style={{ textAlign: "center", marginTop: 50 }}>
+          <Title style={{ opacity: 0.7 }} level={5}>
+            Bạn chưa tham gia nhóm dịch nào
+          </Title>
+        </div>
+      ) : (
+        <Row gutter={[16, 16]} justify="start">
+          {groups.map((group) => (
+            <Col
+              onClick={() => handleClick(group)}
+              key={group._id}
+              xs={24}
+              sm={12}
+              md={8}
+              lg={6}
+            >
+              <Card
+                hoverable
+                style={{
+                  border: "1px solid #d9d9d9", // Thêm border
+                }}
+                cover={
+                  <img
+                    alt={group.groupName}
+                    src={group.groupImgUrl}
+                    style={{ height: 150, objectFit: "cover" }}
+                  />
+                }
+              >
+                <Card.Meta
+                  title={
+                    <div>
+                      <strong>Tên nhóm dịch:</strong> {group.groupName}
+                    </div>
+                  }
+                  description={
+                    <div>
+                      <div>
+                        <strong>Mô tả:</strong> {group.groupDescription}
+                      </div>
+                      <div
+                        style={{
+                          marginTop: 8,
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        {group.groupStatus === "active" ? (
+                          <>
+                            <div
+                              style={{
+                                width: 10,
+                                height: 10,
+                                borderRadius: "50%",
+                                backgroundColor: "green",
+                                marginRight: 8,
+                              }}
+                            ></div>
+                            <span style={{ color: "green" }}>
+                              Đang hoạt động
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <div
+                              style={{
+                                width: 10,
+                                height: 10,
+                                borderRadius: "50%",
+                                backgroundColor: "red",
+                                marginRight: 8,
+                              }}
+                            ></div>
+                            <span style={{ color: "red" }}>
+                              Chưa được duyệt
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  }
+                />
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
+    </div>
+  );
+};
+
 const ManageUser = (props: IProps) => {
   const { open, setOpen } = props;
 
@@ -135,7 +273,11 @@ const ManageUser = (props: IProps) => {
       label: `Thay đổi mật khẩu`,
       children: <UpdateUserPassword />,
     },
-
+    {
+      key: "user-groups",
+      label: `Nhóm dịch đang tham gia`,
+      children: <UserGroups />,
+    },
   ];
 
   return (

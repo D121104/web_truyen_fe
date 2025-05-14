@@ -50,7 +50,7 @@ import classNames from "classnames";
 import { MenuProps } from "antd/lib";
 import CategoryDropdown from "@/components/client/Header/Category.dropdown";
 import RankingDropdown from "@/components/client/Header/Ranking.dropdown";
-import ManageUser from "./User.manage";
+import ManageUser from "@/components/client/Header/User.manage";
 // import socket from "@/utils/socket";
 const cx = classnames.bind(styles);
 
@@ -61,7 +61,9 @@ interface IMessageFromServer {
 }
 
 const Header: React.FC = () => {
-  const isAuth = useAppSelector((state) => state?.auth.isAuthenticated);
+  const isAuth = useAppSelector(
+    (state) => state?.auth.isAuthenticated as boolean
+  );
   const user = useAppSelector((state) => state?.auth.user);
   const [open, setOpen] = useState<boolean>(false);
   const [notifications, setNotifications] = useState<INotification[]>([]);

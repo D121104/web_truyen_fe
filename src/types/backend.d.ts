@@ -112,9 +112,9 @@ export interface IChapter {
 
 export interface ITranslatorGroup {
   _id?: string;
-  groupName: string;
-  groupDescription: string;
-  groupImgUrl: string;
+  groupName?: string;
+  groupDescription?: string;
+  groupImgUrl?: string;
   groupStatus?: string;
   users?: string[];
   books?: string[];

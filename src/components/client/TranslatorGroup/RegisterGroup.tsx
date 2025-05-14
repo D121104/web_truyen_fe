@@ -27,8 +27,9 @@ const RegisterGroup: React.FC = () => {
       toast.success("Tạo yêu cầu thành công, vui lòng chờ admin duyệt");
       return;
     }
-
-    toast.error(res.message.join(", "));
+    const msg =
+      typeof res.message === "string" ? res.message : res.message.join(", ");
+    toast.error(msg);
     setLoading(false);
   };
   return (

@@ -11,8 +11,10 @@ import LayoutApp from "@/components/layout/LayoutApp";
 import LayoutAdmin from "@/components/layout/LayoutAdmin";
 import Header from "@/components/admin/Header/Header";
 import Sidebar from "@/components/admin/Sidebar/Sidebar";
+import "react-toastify/dist/ReactToastify.css";
 
 import "../../globals.css";
+import { ToastContainer } from "react-toastify";
 
 export const metadata: Metadata = {
   title: "Web Book",
@@ -27,6 +29,7 @@ export default function AdminLayout({
   return (
     <html lang="en">
       <body className="admin-wrapper">
+        <ToastContainer />
         <div className="admin-container">
           <StoreProvider>
             <ConfigProvider
