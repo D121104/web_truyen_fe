@@ -290,7 +290,7 @@ export const createBook = async (
 
 export const updateBook = async (body: IBook): Promise<any> => {
   // Loại bỏ các thuộc tính không cần thiết
-  const { createdAt, updatedAt, __v, ...filteredBody } = body;
+  const { createdAt, updatedAt, ...filteredBody } = body;
 
   const res = await fetchWithInterceptor(`${BACKEND_URL}/api/books`, {
     method: "PATCH",

@@ -1,4 +1,5 @@
 import styles from "@/styles/BookDetail.module.scss";
+import { IBook, IChapter } from "@/types/backend";
 import {
   DatabaseFilled,
   EyeFilled,
@@ -11,58 +12,39 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { faker } from "@faker-js/faker";
+import dayjs from "dayjs";
 import Link from "next/link";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { useState } from "react";
 
-const generateFakeBooks = (count: number) => {
-  return Array.from({ length: count }, () => ({
-    id: faker.string.uuid(),
-    title: faker.lorem.words(5),
-    author: faker.person.fullName(),
-    status: faker.helpers.arrayElement(["Đang cập nhật", "Hoàn thành"]),
-    genres: faker.helpers.arrayElements(
-      ["Adventure", "Manhua", "Supernatural", "Xuyên Không", "Truyện Màu"],
-      faker.number.int({ min: 2, max: 5 })
-    ),
-    translator: faker.company.name(),
-    views: faker.number.int({ min: 1000, max: 1000000 }),
-    likes: faker.number.int({ min: 10, max: 10000 }),
-    follows: faker.number.int({ min: 100, max: 50000 }),
-    rating: faker.number.float({ min: 1, max: 5, precision: 0.1 }),
-    reviews: faker.number.int({ min: 10, max: 500 }),
-    cover: faker.image.url({ width: 160, height: 200 }), // Hình ảnh giả
-    description: faker.lorem.paragraphs(2),
-    chapters: Array.from(
-      { length: faker.number.int({ min: 10, max: 100 }) },
-      (_, index) => ({
-        chapter: index + 1,
-        title: faker.lorem.words(3),
-        time: `${faker.number.int({ min: 1, max: 7 })} ngày trước`,
-        views: faker.number.int({ min: 1000, max: 10000 }),
-      })
-    ),
-  }));
-};
+dayjs.extend(relativeTime);
 
-const BookDetail = () => {
-  const book = generateFakeBooks(1)[0]; // Lấy một cuốn sách giả
+interface IProps {
+  book: IBook;
+}
+
+const BookDetail: React.FC<IProps> = (props: IProps) => {
+  const { book } = props;
 
   // State để quản lý hiển thị danh sách chương
   const [showAllChapters, setShowAllChapters] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
   // Lấy danh sách chương hiển thị (15 chương mới nhất hoặc toàn bộ)
+  console.log("book", book);
   const chaptersToShow = showAllChapters
-    ? book.chapters
+    ? book.chapters ?? []
     : book.chapters.slice(0, 15);
 
   return (
     <div className={styles.container}>
       {/* Header Section */}
       <div className={styles.header}>
-        <h1>{book.title}</h1>
+        <h1>{book.bookTitle}</h1>
         <div className={styles.updateInfo}>
           <div className={styles.divider} />
-          <span>Cập nhật lúc: 09:50 09/05/2025</span>
+          <span>
+            Cập nhật lúc: {dayjs(book.updatedAt).format("DD/MM/YYYY")}
+          </span>
           <div className={styles.divider} />
         </div>
       </div>
@@ -70,10 +52,7 @@ const BookDetail = () => {
       {/* Metadata Section */}
       <div className={styles.metadata}>
         <div className={styles.cover}>
-          <img
-            src="https://i0.wp.com/s2.anhvip.xyz/comics/ta-la-ta-de-1698125508.jpg"
-            alt=""
-          />
+          <img src={book.imgUrl} alt="" />
         </div>
         <div className={styles.section}>
           <div className={styles.infoList}>
@@ -93,7 +72,9 @@ const BookDetail = () => {
                 />
                 Tình trạng:
               </span>
-              <span className={styles.infoDetail}>{book.status}</span>
+              <span className={styles.infoDetail}>
+                {book.status ?? "Hoàn thành"}
+              </span>
             </div>
             <div className={styles.infoRow}>
               <span className={styles.infoName}>
@@ -104,7 +85,7 @@ const BookDetail = () => {
               </span>
               <span className={styles.infoDetail}>
                 <div className={styles.tags}>
-                  {book.genres.map((genre, index) => (
+                  {book.categories.map((genre, index) => (
                     <Link
                       href={`/`}
                       key={index}
@@ -124,7 +105,9 @@ const BookDetail = () => {
                 />
                 Nhóm dịch:
               </span>
-              <span className={styles.infoDetail}>{book.translator}</span>
+              <span className={styles.infoDetail}>
+                {book.translatorGroup?.groupName ?? "No Name"}
+              </span>
             </div>
           </div>
           {/* Stats Section */}
@@ -219,10 +202,10 @@ const BookDetail = () => {
           <span className={styles.chapterViews}>Lượt xem</span>
         </div>
         <div className={styles.chapterList}>
-          {chaptersToShow.map((chapter) => (
-            <div key={chapter.chapter} className={styles.chapterRow}>
+          {chaptersToShow.map((chapter: IChapter) => (
+            <div key={chapter.chapterNumber} className={styles.chapterRow}>
               <Link
-                href={`/book/${book.id}/chapter/${chapter.chapter}`}
+                href={`/book/${book._id}/chapter/${chapter._id}`}
                 style={{
                   textDecoration: "none",
                   color: "#1d1d1d",
@@ -232,12 +215,14 @@ const BookDetail = () => {
               >
                 <div>
                   <span className={styles.chapterNumber}>
-                    Chương {chapter.chapter}: {chapter.title}
+                    Chương {chapter.chapterNumber}: {chapter.chapterTitle}
                   </span>
                 </div>
               </Link>{" "}
-              <span className={styles.chapterTime}>{chapter.time}</span>
-              <span className={styles.chapterViews}>{chapter.views}</span>
+              <span className={styles.chapterTime}>
+                {dayjs(chapter.updatedAt).fromNow()}
+              </span>
+              <span className={styles.chapterViews}>{0}</span>
             </div>
           ))}
         </div>

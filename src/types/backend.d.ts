@@ -58,13 +58,17 @@ export interface IBook {
   _id?: string;
   bookTitle: string;
   description?: string;
-  imgUrl?: string;
+  imgUrl: string;
   view: number;
   author?: string;
   status: string;
   categories: Category[];
-  chapters?: Chapter[];
+  translatorGroup?: ITranslatorGroup;
+  chapters: Chapter[];
   users?: User[];
+  comments?: Comment[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface IComment {
@@ -76,8 +80,8 @@ export interface IComment {
     name: string;
   };
   parentId?: string;
-  left?: number;
-  right?: number;
+  left: number;
+  right: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -109,6 +113,8 @@ export interface IChapter {
   status: string;
   book: string;
   images: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ITranslatorGroup {
