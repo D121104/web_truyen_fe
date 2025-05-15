@@ -36,15 +36,15 @@ export default function RootLayout({
               locale={vi_VN}
               theme={{
                 token: {
-                  colorPrimary: "#17252A",
-                  colorPrimaryHover: "#2B7A78",
+                  colorPrimary: "#2B7A78",
+                  colorPrimaryHover: "#17252A",
                   colorPrimaryActive: "#17252A",
                   borderRadius: 13,
                 },
                 components: {
                   Button: {
-                    colorPrimary: "#17252A",
-                    colorPrimaryHover: "#2B7A78",
+                    colorPrimary: "#2B7A78",
+                    colorPrimaryHover: "#17252A",
                     colorPrimaryActive: "#17252A",
                   },
                 },

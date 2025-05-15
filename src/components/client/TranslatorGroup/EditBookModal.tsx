@@ -5,19 +5,20 @@ import { Button, Form, Input, Modal } from "antd";
 import { useAppDispatch } from "@/lib/redux/hooks";
 import { setOpenAddBook, setPageTitle } from "@/lib/redux/slice/auth.slice";
 import UploadImg from "../Upload/Upload";
-import { createBook } from "@/config/api";
+import { createBook, updateBook } from "@/config/api";
 import { toast } from "react-toastify";
-import { useParams } from "next/navigation";
+import { IBook } from "@/types/backend";
 
 interface IProps {
   open: boolean;
   setOpen: (open: boolean) => void;
-  refresh: () => void; // Hàm để làm mới danh sách sách
+  book: IBook | null; // Thông tin sách cần chỉnh sửa
+  updateBookInList: (updatedBook: IBook) => void; // Hàm cập nhật danh sách sách
 }
 
-const AddBookModal: React.FC<IProps> = (props: IProps) => {
-  const { translatorGroupId } = useParams();
-  const { open, setOpen, refresh } = props;
+const EditBookModal: React.FC<IProps> = (props: IProps) => {
+  const { open, setOpen, book, updateBookInList } = props;
+
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [form] = Form.useForm(); // Sử dụng Ant Design Form instance
   const dispatch = useAppDispatch();
@@ -25,23 +26,25 @@ const AddBookModal: React.FC<IProps> = (props: IProps) => {
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
+      values._id = book._id; // Thêm _id vào giá trị form
       console.log("Form values:", values);
 
       setConfirmLoading(true);
 
-      const res = await createBook(values, translatorGroupId);
+      const res = await updateBook(values);
 
-      if (res.code === 201) {
+      if (res.code === 200) {
         setOpen(false);
         form.resetFields();
         setConfirmLoading(false);
-        toast.success("Thêm truyện thành công");
-        refresh(); // Gọi hàm làm mới danh sách sách
+        toast.success("Chỉnh sửa truyện thành công");
+
+        updateBookInList(values);
         return;
       }
       const errorMessage = Array.isArray(res.message)
         ? res.message.join(", ") // Nối các phần tử trong mảng bằng dấu phẩy
-        : res.message || "Thêm truyện thất bại"; // Nếu không phải mảng, lấy trực tiếp message
+        : res.message || "Chỉnh sửa truyện thất bại"; // Nếu không phải mảng, lấy trực tiếp message
 
       console.log("Error:", res);
       toast.error(errorMessage);
@@ -55,14 +58,21 @@ const AddBookModal: React.FC<IProps> = (props: IProps) => {
     setOpen(false);
   };
 
+  // Cập nhật giá trị ban đầu của form khi `book` thay đổi
   useEffect(() => {
-    dispatch(setPageTitle("Thêm truyện"));
+    if (book) {
+      form.setFieldsValue(book); // Thiết lập giá trị ban đầu từ `book`
+    }
+  }, [book, form]);
+
+  useEffect(() => {
+    dispatch(setPageTitle("Chỉnh sửa truyện"));
   }, [dispatch]);
 
   return (
     <>
       <Modal
-        title={`Thêm truyện`}
+        title={`Chỉnh sửa truyện`}
         open={open}
         onOk={handleOk} // Gọi handleOk khi nhấn OK
         confirmLoading={confirmLoading}
@@ -115,4 +125,4 @@ const AddBookModal: React.FC<IProps> = (props: IProps) => {
   );
 };
 
-export default AddBookModal;
+export default EditBookModal;

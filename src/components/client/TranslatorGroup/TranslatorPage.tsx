@@ -58,10 +58,8 @@ const TranslatorPage = () => {
       </div>
       <div className={cx("content")}>
         <div>
-          <div className={cx("contentTitle")}>Truyện của nhóm</div>
           <div className={cx("contentList")}>
             <BookList />
-            {open && <AddBookModal open={open} setOpen={setOpen} />}
           </div>
         </div>
       </div>

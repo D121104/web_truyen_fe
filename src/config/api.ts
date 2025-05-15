@@ -12,6 +12,7 @@ import {
   ICreateComment,
   IBook,
   ITranslatorGroup,
+  IChapter,
 } from "@/types/backend";
 import { notification, message } from "antd";
 
@@ -270,13 +271,65 @@ export const createOtp = async (email: string): Promise<Response> => {
 };
 
 // api books
-export const createBook = async (body: IBook): Promise<any> => {
+export const createBook = async (
+  body: IBook,
+  groupId: string
+): Promise<any> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/books?groupId=${groupId}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    }
+  );
+  return res;
+};
+
+export const updateBook = async (body: IBook): Promise<any> => {
+  // Loại bỏ các thuộc tính không cần thiết
+  const { createdAt, updatedAt, __v, ...filteredBody } = body;
+
   const res = await fetchWithInterceptor(`${BACKEND_URL}/api/books`, {
-    method: "POST",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(filteredBody), // Gửi dữ liệu đã được lọc
+  });
+
+  return res;
+};
+
+export const getBooks = async ({
+  current = 1,
+  pageSize = 10,
+  title = "",
+}): Promise<IBackendRes<IModelPaginate<IBook>>> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/books?current=${current}&pageSize=${pageSize}${
+      title ? `&title=${new RegExp(title, "i")}` : ""
+    }`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return res;
+};
+
+export const getBookById = async (
+  bookId: string
+): Promise<IBackendRes<IBook>> => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/books/${bookId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
   });
   return res;
 };
@@ -324,6 +377,22 @@ export const updateGroup = async (body: ITranslatorGroup): Promise<any> => {
       body: JSON.stringify(body),
     }
   );
+  return res;
+};
+
+export const getGroupById = async (
+  id: string
+): Promise<IBackendRes<ITranslatorGroup>> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/translator.groups/group/${id}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
   return res;
 };
 
@@ -394,4 +463,104 @@ export const deleteUser = async (id: string): Promise<any> => {
     },
   });
   return res;
+};
+
+// api chapters
+export const createChapter = async (body: IChapter): Promise<any> => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/chapters`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  return res;
+};
+
+export const updateChapter = async (body: IChapter): Promise<any> => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/chapters`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  return res;
+};
+
+export const getChapterById = async (
+  chapterId: string
+): Promise<IBackendRes<IChapter>> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/chapters/${chapterId}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return res;
+};
+
+export const getChapters = async ({
+  current = 1,
+  pageSize = 10,
+}): Promise<IBackendRes<IModelPaginate<IChapter>>> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/chapters?current=${current}&pageSize=${pageSize}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return res;
+};
+
+export const deleteChapter = async (id: string): Promise<any> => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/chapters/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return res;
+};
+
+export const getChaptersDetails = async (
+  chapterIds: string[]
+): Promise<IChapter[]> => {
+  try {
+    console.log("chapterIds", chapterIds);
+    const chapters = await Promise.all(
+      chapterIds.map(async (id) => {
+        const res = await fetchWithInterceptor(
+          `${BACKEND_URL}/api/chapters/${id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        console.log("res", res);
+
+        if (!res.ok) {
+          const errorData = await res;
+          throw new Error(
+            errorData.message || `Không thể lấy thông tin chương với ID: ${id}`
+          );
+        }
+        console.log("res", res);
+        return res;
+      })
+    );
+    console.log("chapters", chapters);
+    return chapters;
+  } catch (error: any) {
+    console.error("Lỗi khi gọi API getChaptersDetails:", error.message);
+    throw new Error(error.message || "Đã xảy ra lỗi không xác định");
+  }
 };

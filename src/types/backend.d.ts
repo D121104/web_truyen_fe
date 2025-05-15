@@ -103,7 +103,8 @@ export interface IBuyHistory {
 
 export interface IChapter {
   _id?: string;
-  chapteTitle: string;
+  chapterNumber: number;
+  chapterTitle: string;
   price: number;
   status: string;
   book: string;
