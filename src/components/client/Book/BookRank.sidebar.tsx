@@ -1,35 +1,43 @@
 "use client";
 
-import React from "react";
-import { faker } from "@faker-js/faker";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import styles from "@/styles/BookRankSidebar.module.scss";
 import classNames from "classnames/bind";
-import {
-  BookOutlined,
-  ClockCircleFilled,
-  EyeOutlined,
-} from "@ant-design/icons";
-import { Button } from "antd";
+import { EyeOutlined } from "@ant-design/icons";
+import { Button, Skeleton } from "antd";
+import { IBook } from "@/types/backend";
+import { getBooks, getBooksSortedByViews } from "@/config/api";
 
 const cx = classNames.bind(styles);
 
-const generateFakeBooks = (count: number) => {
-  return Array.from({ length: count }, () => ({
-    id: faker.string.uuid(),
-    title: faker.lorem.words(2),
-    chapter: faker.number.int({ min: 1, max: 1000 }),
-    time: `${faker.number.int({ min: 1, max: 24 })} giờ trước`,
-    cover: faker.image.url({ width: 160, height: 200 }),
-    continueReading: faker.datatype.boolean(),
-    newChapter: faker.number.int({ min: 500, max: 600 }),
-    view: faker.number.int({ min: 1000, max: 100000 }),
-  }));
-};
-
-const books = generateFakeBooks(10);
-
 const BookRankSidebar: React.FC = () => {
+  const [loading, setLoading] = useState(false);
+  const [books, setBooks] = useState<IBook[]>([]);
+
+  const fetchBooks = async () => {
+    try {
+      setLoading(true);
+      const res = await getBooks({});
+      if (res.code === 200) {
+        setBooks(res.data?.result as IBook[]);
+      } else {
+        console.error("Error fetching books:");
+      }
+    } catch (error) {
+      console.error("Error fetching books:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBooks();
+  }, [setBooks]);
+
+  if (loading) {
+    return <Skeleton active />;
+  }
   return (
     <div className={cx("sidebar")}>
       <div className={cx("header")}>
@@ -50,23 +58,23 @@ const BookRankSidebar: React.FC = () => {
 
       <div className={cx("book-list")}>
         {books.map((book, index) => (
-          <React.Fragment key={book.id}>
+          <React.Fragment key={book._id}>
             <div className={cx("book-item")}>
               <div className={cx("book-rank")}>
                 {index + 1 < 10 ? "0" + (index + 1).toString() : index + 1}{" "}
               </div>
 
-              <Link href={`/book/${book.id}`}>
+              <Link href={`/book/${book._id}`}>
                 {" "}
                 <img
-                  src={book.cover}
-                  alt={book.title}
+                  src={book.imgUrl}
+                  alt={book.bookTitle}
                   className={cx("book-cover")}
                 />
               </Link>
               <div className={cx("book-info")}>
                 <Link
-                  href={`/book/${book.id}`}
+                  href={`/book/${book._id}`}
                   className={cx("book-title")}
                   style={{
                     textDecoration: "none",
@@ -75,11 +83,11 @@ const BookRankSidebar: React.FC = () => {
                     fontWeight: "bold",
                   }}
                 >
-                  {book.title}
+                  {book.bookTitle}
                 </Link>
                 <div className={cx("chapter-info")}>
                   <Link
-                    href={`/book/${book.id}/chapter/${book.chapter}`}
+                    href={`/book/${book._id}/chapter/${book.chapters[0]?._id}`}
                     className={cx("book-chapter")}
                     style={{
                       textDecoration: "none",
@@ -87,11 +95,11 @@ const BookRankSidebar: React.FC = () => {
                       fontSize: "13px",
                     }}
                   >
-                    Chapter {book.chapter}
+                    Chapter {book.chapters[0]?.chapterNumber}
                   </Link>
                   <div className={cx("book-view")}>
                     <EyeOutlined />
-                    {book.view}
+                    {book.totalViews}
                   </div>
                 </div>
               </div>

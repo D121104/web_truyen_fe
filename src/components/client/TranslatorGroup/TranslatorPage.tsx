@@ -1,32 +1,19 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import classnames from "classnames/bind";
 import styles from "@/styles/TranslatorPage.module.scss";
 
-import Link from "next/link";
-
-import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
-import { setOpenAddBook, setPageTitle } from "@/lib/redux/slice/auth.slice";
+import { useAppDispatch } from "@/lib/redux/hooks";
+import { setPageTitle } from "@/lib/redux/slice/auth.slice";
 import BookList from "@/components/client/TranslatorGroup/BookList";
-import {
-  AppstoreOutlined,
-  ContainerOutlined,
-  DesktopOutlined,
-  MailOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  PieChartOutlined,
-} from "@ant-design/icons";
-import type { MenuProps } from "antd";
-import { Button, Menu } from "antd";
-import AddBookModal from "@/components/client/TranslatorGroup/AddBookModal";
+import { MailOutlined, PieChartOutlined } from "@ant-design/icons";
+import { Menu, type MenuProps } from "antd";
+
 const cx = classnames.bind(styles);
 
 type MenuItem = Required<MenuProps>["items"][number];
 
 const TranslatorPage = () => {
-  const [open, setOpen] = useState(false);
-
   const dispatch = useAppDispatch();
 
   const items: MenuItem[] = [
@@ -35,10 +22,7 @@ const TranslatorPage = () => {
       key: "sub1",
       label: "Truyện của nhóm",
       icon: <MailOutlined />,
-      children: [
-        { key: "2", label: "Danh sách truyện" },
-        { key: "3", label: "Thêm truyện", onClick: () => setOpen(true) },
-      ],
+      children: [{ key: "2", label: "Danh sách truyện" }],
     },
   ];
 

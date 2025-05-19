@@ -110,21 +110,21 @@ const Header: React.FC = () => {
     setIsNewNoti(false);
   };
 
-  useEffect(() => {
-    if (isAuth) {
-      const getNotification = async () => {
-        try {
-          const res = await fetchNotifications({});
+  // useEffect(() => {
+  //   if (isAuth) {
+  //     const getNotification = async () => {
+  //       try {
+  //         const res = await fetchNotifications({});
 
-          if (res.data) {
-            setNotifications(res.data.result as INotification[]);
-          }
-        } catch (error) {}
-      };
+  //         if (res.data) {
+  //           setNotifications(res.data.result as INotification[]);
+  //         }
+  //       } catch (error) {}
+  //     };
 
-      getNotification();
-    }
-  }, [isAuth]);
+  //     getNotification();
+  //   }
+  // }, [isAuth]);
 
   useEffect(() => {
     document.body.addEventListener("click", (e) => {
@@ -264,7 +264,7 @@ const Header: React.FC = () => {
                     arrow={true}
                   >
                     <Space style={{ cursor: "pointer" }}>
-                      <span>Xin chào {user?.name}</span>
+                      <span>{user?.name}</span>
                     </Space>
                   </Dropdown>
                 </div>

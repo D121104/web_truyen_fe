@@ -16,14 +16,12 @@ import { ColumnsType } from "antd/es/table";
 import { IBook, IChapter } from "@/types/backend";
 import dayjs from "dayjs";
 import {
-  getChapterById,
   createChapter,
   updateChapter,
   deleteChapter,
-  updateBook,
+  getBookById,
 } from "@/config/api";
 import { toast } from "react-toastify";
-import UploadImg from "@/components/client/Upload/Upload";
 import UploadImgs from "@/components/client/Upload/UploadImgs";
 
 interface IProps {
@@ -47,59 +45,34 @@ const ChapterTable: React.FC<IProps> = (props: IProps) => {
   const [currentChapter, setCurrentChapter] = useState<IChapter | null>(null);
   const [form] = Form.useForm();
 
-  // Hàm lấy danh sách chương
+  // Lấy danh sách chương (phân trang và sắp xếp)
   const fetchChapters = async (current = 1, pageSize = 10) => {
     setLoading(true);
     try {
       if (!book || !book.chapters || book.chapters.length === 0) {
-        toast.error("Không tìm thấy danh sách chương trong sách");
         setData([]);
         setPagination({ current: 1, pageSize: 10, total: 0, pages: 0 });
         return;
       }
 
-      // Lấy thông tin chi tiết của từng chương
-      const chapterDetails = await Promise.all(
-        book.chapters.map(async (chapterId: string) => {
-          try {
-            const res = await getChapterById(chapterId);
-            if (res.code === 200) {
-              return res.data;
-            } else {
-              console.error(
-                `Không thể tải thông tin chương với ID: ${chapterId}`
-              );
-              return null;
-            }
-          } catch (error) {
-            console.error(
-              `Lỗi khi tải thông tin chương với ID: ${chapterId}`,
-              error
-            );
-            return null;
-          }
-        })
+      // Sắp xếp chương theo số chương
+      const sortedChapters = [...book.chapters].sort(
+        (a, b) => Number(a.chapterNumber) - Number(b.chapterNumber)
       );
-
-      // Lọc bỏ các chương không hợp lệ
-      const validChapters = chapterDetails.filter(
-        (chapter) => chapter !== null
-      ) as IChapter[];
 
       // Phân trang dữ liệu
       const startIndex = (current - 1) * pageSize;
-      const paginatedChapters = validChapters.slice(
+      const paginatedChapters = sortedChapters.slice(
         startIndex,
         startIndex + pageSize
       );
 
-      // Cập nhật state
       setData(paginatedChapters);
       setPagination({
         current,
         pageSize,
-        total: validChapters.length,
-        pages: Math.ceil(validChapters.length / pageSize),
+        total: sortedChapters.length,
+        pages: Math.ceil(sortedChapters.length / pageSize),
       });
     } catch (error) {
       toast.error("Đã xảy ra lỗi khi tải dữ liệu chương");
@@ -108,13 +81,13 @@ const ChapterTable: React.FC<IProps> = (props: IProps) => {
     }
   };
 
-  // Hàm tìm kiếm chương
+  // Tìm kiếm chương
   const handleSearch = () => {
     if (!searchName.trim()) {
       toast.error("Vui lòng nhập từ khóa tìm kiếm");
       return;
     }
-    const filteredChapters = data.filter((chapter) =>
+    const filteredChapters = (book?.chapters ?? []).filter((chapter) =>
       chapter.chapterNumber
         .toString()
         .toLowerCase()
@@ -129,12 +102,12 @@ const ChapterTable: React.FC<IProps> = (props: IProps) => {
     fetchChapters(1, pagination.pageSize);
   };
 
-  // Xử lý thay đổi phân trang
+  // Thay đổi phân trang
   const handleTableChange = (pagination: any) => {
     fetchChapters(pagination.current, pagination.pageSize);
   };
 
-  // Xử lý cập nhật chương
+  // Cập nhật chương
   const handleUpdate = (chapter: IChapter) => {
     setIsUpdateMode(true);
     setCurrentChapter(chapter);
@@ -142,15 +115,14 @@ const ChapterTable: React.FC<IProps> = (props: IProps) => {
     setIsModalOpen(true);
   };
 
-  // Xử lý xóa chương
+  // Xóa chương
   const handleDelete = async (chapterId: string) => {
     try {
-      await deleteChapter(chapterId);
-      const updatedChapters = book?.chapters.filter((id) => id !== chapterId);
-      if (book && updatedChapters) {
-        book.chapters = updatedChapters;
-        await updateBook(book as IBook);
-        setBook(book);
+      await deleteChapter(chapterId, book?._id);
+      // Lấy lại book mới nhất từ backend để đồng bộ dữ liệu
+      if (book?._id) {
+        const refreshedBook = await getBookById(book._id);
+        setBook(refreshedBook.data as IBook);
       }
       toast.success("Xóa chương thành công!");
       fetchChapters(pagination.current, pagination.pageSize);
@@ -159,7 +131,7 @@ const ChapterTable: React.FC<IProps> = (props: IProps) => {
     }
   };
 
-  // Xử lý thêm hoặc cập nhật chương
+  // Thêm hoặc cập nhật chương
   const handleCreateOrUpdateChapter = async (values: IChapter) => {
     try {
       if (isUpdateMode) {
@@ -171,28 +143,24 @@ const ChapterTable: React.FC<IProps> = (props: IProps) => {
         }
         toast.success("Cập nhật chương thành công!");
       } else {
-        const res = await createChapter(values);
+        const res = await createChapter(values, book?._id);
         if (res.code === 201) {
-          const newChapter = res.data;
-          console.log(book);
-          if (book) {
-            (book.chapters ?? []).push(newChapter._id);
-            await updateBook(book as IBook);
-            console.log("Updated book:", book);
-            setBook(book);
-          }
+          toast.success("Tạo chương mới thành công!");
         } else {
           toast.error(res.message || "Tạo chương mới thất bại");
           return;
         }
-
-        toast.success("Tạo chương mới thành công!");
+      }
+      // Lấy lại book mới nhất từ backend để đồng bộ dữ liệu
+      if (book?._id) {
+        const refreshedBook = await getBookById(book._id);
+        setBook(refreshedBook.data as IBook);
       }
       setIsModalOpen(false);
       form.resetFields();
       fetchChapters(pagination.current, pagination.pageSize);
     } catch (error) {
-      toast.error("Đã xảy ra lỗi khi xử lý chương +" + error);
+      toast.error("Đã xảy ra lỗi khi xử lý chương: " + error);
     }
   };
 
@@ -200,6 +168,7 @@ const ChapterTable: React.FC<IProps> = (props: IProps) => {
     if (book) {
       fetchChapters(1, pagination.pageSize);
     }
+    // eslint-disable-next-line
   }, [book]);
 
   const columns: ColumnsType<IChapter> = [
@@ -341,14 +310,14 @@ const ChapterTable: React.FC<IProps> = (props: IProps) => {
             rules={[{ required: true, message: "Vui lòng chọn trạng thái" }]}
           >
             <Select placeholder="Chọn trạng thái">
-              <Select.Option value="Khóa">Khóa</Select.Option>
-              <Select.Option value="Mở khóa">Mở khóa</Select.Option>
+              <Select.Option value="lock">Khóa</Select.Option>
+              <Select.Option value="unlock">Mở khóa</Select.Option>
             </Select>
           </Form.Item>
           <Form.Item label="Nội dung chương" name="images">
             <UploadImgs
               onUploadSuccess={(urls: string[]) => {
-                form.setFieldsValue({ images: urls }); // Cập nhật danh sách URL vào form
+                form.setFieldsValue({ images: urls });
               }}
             />
           </Form.Item>

@@ -43,6 +43,7 @@ const BookList: React.FC = () => {
       if (res.code === 200) {
         const groupData = res.data; // Lấy thông tin nhóm từ API
         setGroup(groupData); // Lưu thông tin nhóm vào state
+        // console.log("Group data:", groupData);
 
         // Lấy thông tin chi tiết của từng sách
         const bookDetails = await Promise.all(

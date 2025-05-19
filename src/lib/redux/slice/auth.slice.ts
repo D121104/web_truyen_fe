@@ -1,10 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { callFetchAccount } from "@/config/api";
+import { IBook, IChapter } from "@/types/backend";
 
 export const fetchAccount = createAsyncThunk(
   "account/fetchAccount",
   async () => {
     const response = await callFetchAccount();
+    console.log("response", response);
     return response?.data;
   }
 );
@@ -19,6 +21,10 @@ interface IState {
     email: string;
     name: string;
     role: string;
+    coin: number;
+    avatar: string;
+    books?: IBook[];
+    chapters?: IChapter[];
   };
   pageTitle: string;
   activeMenu: string;
@@ -35,6 +41,10 @@ const initialState: IState = {
     email: "",
     name: "",
     role: "",
+    coin: 0,
+    avatar: "",
+    books: [],
+    chapters: [],
   },
   pageTitle: "Truyện mới cập nhật",
 
@@ -57,6 +67,10 @@ export const accountSlice = createSlice({
       state.user.email = action.payload.email;
       state.user.name = action.payload.name;
       state.user.role = action?.payload?.role;
+      state.user.coin = action?.payload?.coin;
+      state.user.avatar = action?.payload?.avatar;
+      state.user.books = action?.payload?.books;
+      state.user.chapters = action?.payload?.chapters;
     },
     setLogoutAction: (state, action) => {
       localStorage.removeItem("access_token");
@@ -67,6 +81,10 @@ export const accountSlice = createSlice({
         email: "",
         name: "",
         role: "",
+        coin: 0,
+        avatar: "",
+        books: [],
+        chapters: [],
       };
     },
     setPageTitle: (state, action) => {
@@ -75,10 +93,6 @@ export const accountSlice = createSlice({
     setRefreshTokenAction: (state, action) => {
       state.isRefreshToken = action.payload?.status ?? false;
       state.errorRefreshToken = action.payload?.message ?? "";
-    },
-
-    setOpenAddBook: (state, action) => {
-      state.openAddBook = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -99,6 +113,12 @@ export const accountSlice = createSlice({
         state.user.email = action.payload.user?.email;
         state.user.name = action.payload.user?.name;
         state.user.role = action?.payload?.user?.role;
+        state.user.coin = action?.payload?.user?.coin;
+        state.user.avatar = action?.payload?.user?.avatar;
+        state.user.books =
+          action?.payload?.user?.books ?? action?.payload?.books ?? [];
+        state.user.chapters =
+          action?.payload?.user?.chapters ?? action?.payload?.chapters ?? [];
       }
     });
 
@@ -117,7 +137,6 @@ export const {
   setLogoutAction,
   setRefreshTokenAction,
   setPageTitle,
-  setOpenAddBook,
 } = accountSlice.actions;
 
 export default accountSlice.reducer;

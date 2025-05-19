@@ -1,30 +1,70 @@
 "use client";
 
-import React from "react";
-import { faker } from "@faker-js/faker";
+import React, { useEffect, useState } from "react";
+
 import Link from "next/link";
 import styles from "@/styles/BookHistory.module.scss";
 import classNames from "classnames/bind";
 import { ClockCircleOutlined } from "@ant-design/icons";
-import { Button } from "antd";
+import { Button, Skeleton } from "antd";
+import { useAppSelector } from "@/lib/redux/hooks";
+import { deleteReadingHistory, getReadingHistory } from "@/config/api";
+import { IReadingHistory } from "@/types/backend";
+import { toast } from "react-toastify";
 
 const cx = classNames.bind(styles);
 
-const generateFakeBooks = (count: number) => {
-  return Array.from({ length: count }, () => ({
-    id: faker.string.uuid(),
-    title: faker.lorem.words(2),
-    chapter: faker.number.int({ min: 1, max: 1000 }),
-    time: `${faker.number.int({ min: 1, max: 24 })} giờ trước`,
-    cover: faker.image.url({ width: 160, height: 200 }),
-    continueReading: faker.datatype.boolean(),
-    newChapter: faker.number.int({ min: 500, max: 600 }),
-  }));
-};
-
-const books = generateFakeBooks(3);
-
 const BookSidebar: React.FC = () => {
+  const [loading, setLoading] = useState(false);
+  const user_id = useAppSelector((state) => state.auth.user._id);
+
+  const [readingHistory, setReadingHistory] = useState<IReadingHistory[]>([]);
+
+  const handleDeleteHistory = async (bookId: string) => {
+    try {
+      setLoading(true);
+      // Call API to delete history
+      const res = await deleteReadingHistory(user_id, bookId);
+      if (res.code === 200) {
+        // Update the state to remove the deleted history
+        toast.success("Xóa lịch sử đọc truyện thành công");
+        setReadingHistory((prevHistory) => {
+          return prevHistory.filter((history) => history.bookId !== bookId);
+        });
+      } else {
+        toast.error("Lỗi khi xóa lịch sử đọc truyện");
+      }
+    } catch (error) {
+      console.error("Lỗi khi xóa lịch sử đọc truyện", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchReadingHistory = async () => {
+    try {
+      setLoading(true);
+      const res = await getReadingHistory(user_id);
+      if (res.code === 200) {
+        const history = res.data;
+        setReadingHistory(history);
+      } else {
+        console.error("Lỗi khi lấy lịch sử đọc truyện");
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy lịch sử đọc truyện", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReadingHistory();
+  }, [user_id]);
+
+  if (loading) {
+    return <Skeleton active />;
+  }
   return (
     <div className={cx("sidebar")}>
       <div className={cx("header")}>
@@ -38,20 +78,20 @@ const BookSidebar: React.FC = () => {
       </div>
 
       <div className={cx("book-list")}>
-        {books.map((book) => (
-          <React.Fragment key={book.id}>
+        {readingHistory.map((history) => (
+          <React.Fragment key={history?.bookId}>
             <div className={cx("book-item")}>
-              <Link href={`/book/${book.id}`}>
+              <Link href={`/book/${history?.bookId}`}>
                 {" "}
                 <img
-                  src={book.cover}
-                  alt={book.title}
+                  src={history?.bookImg}
+                  alt={history?.bookTitle}
                   className={cx("book-cover")}
                 />
               </Link>
               <div className={cx("book-info")}>
                 <Link
-                  href={`/book/${book.id}`}
+                  href={`/book/${history?.bookId}`}
                   className={cx("book-title")}
                   style={{
                     textDecoration: "none",
@@ -60,17 +100,25 @@ const BookSidebar: React.FC = () => {
                     fontWeight: "bold",
                   }}
                 >
-                  {book.title}
+                  {history?.bookTitle}
                 </Link>
 
-                {book.continueReading && (
+                {history && (
                   <div className={cx("continue-reading")}>
-                    <Link href={`/book/${book.id}/chapter/${book.newChapter}`}>
-                      Đọc tiếp Chapter {book.newChapter}
+                    <Link
+                      href={`/book/${history?.bookId}/chapter/${history.chapterId}`}
+                    >
+                      Đọc tiếp Chapter {history?.chapterNumber}
                     </Link>
                   </div>
                 )}
-                <Button type="primary" style={{ width: "30%", height: "30px" }}>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    handleDeleteHistory(history.bookId);
+                  }}
+                  style={{ width: "30%", height: "30px" }}
+                >
                   Xóa
                 </Button>
               </div>

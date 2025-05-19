@@ -13,6 +13,9 @@ import {
   IBook,
   ITranslatorGroup,
   IChapter,
+  ICategory,
+  IReadingHistory,
+  ViewHistoryDto,
 } from "@/types/backend";
 import { notification, message } from "antd";
 
@@ -307,10 +310,19 @@ export const getBooks = async ({
   current = 1,
   pageSize = 10,
   title = "",
+  limit = "",
+  sort = "",
+  categoryId = "",
+  status = "",
+  period = "",
 }): Promise<IBackendRes<IModelPaginate<IBook>>> => {
   const res = await fetchWithInterceptor(
     `${BACKEND_URL}/api/books?current=${current}&pageSize=${pageSize}${
-      title ? `&title=${new RegExp(title, "i")}` : ""
+      title ? `&title=${encodeURIComponent(title)}` : ""
+    }${limit ? `&limit=${limit}` : ""}${sort ? `&sort=${sort}` : ""}${
+      categoryId ? `&categoryId=${categoryId}` : ""
+    }${status ? `&status=${status}` : ""}${
+      period && period !== "all" ? `&period=${period}` : ""
     }`,
     {
       method: "GET",
@@ -323,14 +335,37 @@ export const getBooks = async ({
 };
 
 export const getBookById = async (
-  bookId: string
+  bookId: string,
+  limit = "",
+  sort = ""
 ): Promise<IBackendRes<IBook>> => {
-  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/books/${bookId}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/books/${bookId}${limit ? `?limit=${limit}` : ""}${
+      sort ? `&sort=${sort}` : ""
+    }`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return res;
+};
+
+export const getBooksSortedByViews = async (
+  limit: number = 10
+): Promise<IBook[]> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/books/top?period=all&limit=${limit}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  // Nếu backend trả về mảng truyện đã sắp xếp theo views
   return res;
 };
 
@@ -367,6 +402,9 @@ export const getGroups = async ({
 };
 
 export const updateGroup = async (body: ITranslatorGroup): Promise<any> => {
+  // Loại bỏ các thuộc tính không cần thiết
+  const { createdAt, updatedAt, ...filteredBody } = body;
+
   const res = await fetchWithInterceptor(
     `${BACKEND_URL}/api/translator.groups`,
     {
@@ -374,7 +412,7 @@ export const updateGroup = async (body: ITranslatorGroup): Promise<any> => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(filteredBody),
     }
   );
   return res;
@@ -445,12 +483,15 @@ export const createUser = async (body: IUser): Promise<any> => {
 };
 
 export const updateUser = async (body: IUser): Promise<any> => {
+  // Loại bỏ các thuộc tính không cần thiết
+  const { createdAt, updatedAt, ...filteredBody } = body;
+
   const res = await fetchWithInterceptor(`${BACKEND_URL}/api/users`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(filteredBody),
   });
   return res;
 };
@@ -465,9 +506,97 @@ export const deleteUser = async (id: string): Promise<any> => {
   return res;
 };
 
+export const updateUserPassword = async (
+  userId: string,
+  values: { password: string }
+): Promise<any> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/users/change-password/${userId}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    }
+  );
+  return res;
+};
+
+export const unfollowBook = async (
+  userId: string,
+  bookId: string
+): Promise<any> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/users/unfollow-book/${userId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ bookId }),
+    }
+  );
+  return res;
+};
+
+export const followBook = async (
+  userId: string,
+  bookId: string
+): Promise<any> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/users/follow-book/${userId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ bookId }),
+    }
+  );
+  return res;
+};
+
+export const getBooksByIds = async (ids: string[]) => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/books/many`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ids }),
+  });
+  return res;
+};
+
+export const fetchBooksByCategory = async (
+  current: number,
+  pageSize: number,
+  categoryId?: string,
+  status?: string,
+  period?: string
+): Promise<IBackendRes<IModelPaginate<IBook>>> => {
+  // Xây dựng query string
+  let query = `current=${current}&pageSize=${pageSize}`;
+  if (categoryId) query += `&categoryId=${categoryId}`;
+  if (status && status !== "all") query += `&status=${status}`;
+  if (period && period !== "all") query += `&period=${period}`;
+
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/books?${query}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return res;
+};
+
 // api chapters
-export const createChapter = async (body: IChapter): Promise<any> => {
-  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/chapters`, {
+export const createChapter = async (
+  body: IChapter & { viewsHistory?: ViewHistoryDto[] },
+  bookId?: string
+): Promise<any> => {
+  const url = bookId
+    ? `${BACKEND_URL}/api/chapters?bookId=${bookId}`
+    : `${BACKEND_URL}/api/chapters`;
+  const res = await fetchWithInterceptor(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -477,13 +606,16 @@ export const createChapter = async (body: IChapter): Promise<any> => {
   return res;
 };
 
-export const updateChapter = async (body: IChapter): Promise<any> => {
+export const updateChapter = async (
+  body: Partial<IChapter> & { viewsHistory?: ViewHistoryDto[] }
+): Promise<any> => {
+  const { createdAt, updatedAt, ...filteredBody } = body;
   const res = await fetchWithInterceptor(`${BACKEND_URL}/api/chapters`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(filteredBody),
   });
   return res;
 };
@@ -519,8 +651,14 @@ export const getChapters = async ({
   return res;
 };
 
-export const deleteChapter = async (id: string): Promise<any> => {
-  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/chapters/${id}`, {
+export const deleteChapter = async (
+  id: string,
+  bookId: string
+): Promise<any> => {
+  const url = bookId
+    ? `${BACKEND_URL}/api/chapters/${id}?bookId=${bookId}`
+    : `${BACKEND_URL}/api/chapters/${id}`;
+  const res = await fetchWithInterceptor(url, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -562,5 +700,138 @@ export const getChaptersDetails = async (
   } catch (error: any) {
     console.error("Lỗi khi gọi API getChaptersDetails:", error.message);
     throw new Error(error.message || "Đã xảy ra lỗi không xác định");
+  }
+};
+
+//api categories
+// Lấy danh sách thể loại (có phân trang và tìm kiếm theo tên)
+export const getCategories = async ({
+  current = 1,
+  pageSize = 10,
+}): Promise<IBackendRes<IModelPaginate<ICategory>>> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/categories?current=${current}&pageSize=${pageSize}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return res;
+};
+
+// Tạo mới thể loại
+export const createCategory = async (body: ICategory): Promise<any> => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/categories`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  return res;
+};
+
+// Cập nhật thể loại
+export const updateCategory = async (body: ICategory): Promise<any> => {
+  // Loại bỏ các thuộc tính không cần thiết
+  const { createdAt, updatedAt, ...filteredBody } = body;
+
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/categories`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(filteredBody),
+  });
+  return res;
+};
+
+// Xóa thể loại
+export const deleteCategory = async (id: string): Promise<any> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/categories/${id}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return res;
+};
+
+//api reading history
+export const saveReadingHistory = async (
+  userId: string,
+  bookId: string,
+  chapterId: string
+): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const res = await fetchWithInterceptor(
+      `${BACKEND_URL}/api/reading-history`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          bookId,
+          chapterId,
+          time: Date.now(),
+        }),
+      }
+    );
+    if (res?.success === false || res?.code === 400) {
+      return {
+        success: false,
+        message: res?.message || "Lưu lịch sử thất bại",
+      };
+    }
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, message: error?.message || "Lỗi kết nối server" };
+  }
+};
+
+export const getReadingHistory = async (
+  userId: string,
+  limit: number = 20
+): Promise<IReadingHistory[]> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/reading-history?userId=${userId}&limit=${limit}`,
+    {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+  // Nếu backend trả về mảng lịch sử đọc
+  return res;
+};
+
+export const deleteReadingHistory = async (
+  userId: string,
+  bookId: string
+): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const res = await fetchWithInterceptor(
+      `${BACKEND_URL}/api/reading-history/${userId}`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bookId,
+        }),
+      }
+    );
+    if (res?.data?.success === false || res?.code === 400) {
+      return {
+        success: false,
+        message: res?.message || "Xóa lịch sử thất bại",
+      };
+    }
+    return res;
+  } catch (error: any) {
+    return { success: false, message: error?.message || "Lỗi kết nối server" };
   }
 };

@@ -17,12 +17,13 @@ import { IBook, IComment } from "@/types/backend";
 import { createComment, getBookById, getComments } from "@/config/api";
 import { message, Spin } from "antd";
 import Comment from "@/components/client/Comment/Comment";
+import { useParams, useSearchParams } from "next/navigation";
 
 const cx = classNames.bind(styles);
 
 const Content: React.FC = (props: any) => {
   const dispatch = useAppDispatch();
-
+  const bookId = useParams().bookId;
   const [comments, setComments] = useState<IComment[]>([]);
 
   const [book, setBook] = useState<IBook>();
@@ -36,10 +37,12 @@ const Content: React.FC = (props: any) => {
   const [loading, setLoading] = useState(true);
 
   const isAuth = useAppSelector((state) => state.auth.isAuthenticated);
+  const searchParams = useSearchParams();
+  const limit = searchParams.get("limit") || "";
 
   useEffect(() => {
     const fetchBook = async () => {
-      const res = await getBookById(props?.params?.bookId);
+      const res = await getBookById(bookId, limit, "-createdAt");
 
       if (res.code === 200) {
         setBook(res.data);
@@ -56,7 +59,7 @@ const Content: React.FC = (props: any) => {
         current: 1,
         pageSize: 50,
 
-        bookId: props?.params?.bookId,
+        bookId: bookId,
       });
       let totalLenght = commentList.data?.result?.length as number;
 
@@ -91,7 +94,7 @@ const Content: React.FC = (props: any) => {
 
       setCommentLoading(true);
       const res = await createComment({
-        bookId: props?.params?.bookId,
+        bookId: bookId,
         content: commentValue,
       });
 
@@ -120,7 +123,7 @@ const Content: React.FC = (props: any) => {
     setCommentLoading(true);
 
     const res = await createComment({
-      bookId: props?.params?.bookId,
+      bookId: bookId,
       content: commentValue,
     });
 

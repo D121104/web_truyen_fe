@@ -33,6 +33,9 @@ const Sidebar: React.FC = () => {
       case "translator-group":
         router.push("/admin/translator-group");
         break;
+      case "category":
+        router.push("/admin/category");
+        break;
       default:
         break;
     }
@@ -45,8 +48,10 @@ const Sidebar: React.FC = () => {
       setSelectedKey("book");
     } else if (pathname.startsWith("/admin/translator-group")) {
       setSelectedKey("translator-group");
-    } else {
+    } else if (pathname.startsWith("/admin/dashboard")) {
       setSelectedKey("dashboard");
+    } else {
+      setSelectedKey("category");
     }
   }, [pathname]);
 
@@ -103,6 +108,11 @@ const Sidebar: React.FC = () => {
             key: "translator-group",
             icon: <TeamOutlined />,
             label: "Quản lý nhóm dịch",
+          },
+          {
+            key: "category",
+            icon: <TeamOutlined />,
+            label: "Quản lý thể loại",
           },
         ]}
       />

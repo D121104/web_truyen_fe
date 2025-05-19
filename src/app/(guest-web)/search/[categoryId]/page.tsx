@@ -8,17 +8,28 @@ import { useAppDispatch } from "@/lib/redux/hooks";
 import { setPageTitle } from "@/lib/redux/slice/auth.slice";
 import CategoriesGrid from "@/components/client/Category/CategoryGrid";
 import FilterSection from "@/components/client/Category/FilterSection";
-import { useParams } from "next/navigation";
 
 const cx = classNames.bind(styles);
 
 const Content: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { categoryId } = useParams(); // Example categoryId, replace with actual value
+
   useEffect(() => {
     dispatch(setPageTitle("Truyện theo thể loại"));
   }, []);
-  return <>{categoryId}</>;
+  return (
+    <div className={cx("contentWrapper")}>
+      <div className={cx("mainWrapper")}>
+        <div className={cx("mainContent")}>
+          <FilterSection />
+          <BookNew />
+        </div>
+        <div className={cx("sidebar")}>
+          <CategoriesGrid />
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Content;

@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Modal } from "antd";
+import { Button, Checkbox, Form, Input, Modal, Select } from "antd";
 import { useAppDispatch } from "@/lib/redux/hooks";
 import { setOpenAddBook, setPageTitle } from "@/lib/redux/slice/auth.slice";
 import UploadImg from "../Upload/Upload";
-import { createBook, updateBook } from "@/config/api";
+import { createBook, getCategories, updateBook } from "@/config/api";
 import { toast } from "react-toastify";
-import { IBook } from "@/types/backend";
+import { IBook, ICategory } from "@/types/backend";
 
 interface IProps {
   open: boolean;
@@ -18,6 +18,7 @@ interface IProps {
 
 const EditBookModal: React.FC<IProps> = (props: IProps) => {
   const { open, setOpen, book, updateBookInList } = props;
+  const [categories, setCategories] = useState<ICategory[]>([]);
 
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [form] = Form.useForm(); // Sử dụng Ant Design Form instance
@@ -58,16 +59,35 @@ const EditBookModal: React.FC<IProps> = (props: IProps) => {
     setOpen(false);
   };
 
-  // Cập nhật giá trị ban đầu của form khi `book` thay đổi
   useEffect(() => {
-    if (book) {
-      form.setFieldsValue(book); // Thiết lập giá trị ban đầu từ `book`
-    }
-  }, [book, form]);
+    dispatch(setPageTitle("Thêm truyện"));
+    // Gọi API để lấy danh sách thể loại
+    const fetchCategories = async () => {
+      try {
+        const res = await getCategories({ current: 1, pageSize: 100 });
+        if (res.code === 200) {
+          setCategories(res.data.result);
+        } else {
+          toast.error("Không thể tải danh sách thể loại");
+        }
+      } catch (error) {
+        toast.error("Đã xảy ra lỗi khi tải dữ liệu");
+      }
+    };
 
-  useEffect(() => {
-    dispatch(setPageTitle("Chỉnh sửa truyện"));
-  }, [dispatch]);
+    fetchCategories(); // Gọi hàm để lấy danh sách thể loại
+
+    if (book) {
+      form.setFieldsValue({
+        ...book,
+        categories: Array.isArray(book.categories)
+          ? book.categories.map((cat) =>
+              typeof cat === "string" ? cat : cat._id
+            )
+          : [],
+      });
+    }
+  }, [dispatch, setCategories, book, form]);
 
   return (
     <>
@@ -112,6 +132,29 @@ const EditBookModal: React.FC<IProps> = (props: IProps) => {
             <Input.TextArea />
           </Form.Item>
 
+          <Form.Item
+            rules={[{ required: true, message: "Vui lòng chọn thể loại" }]}
+            label="Thể loại"
+            name="categories"
+          >
+            <Checkbox.Group
+              options={categories.map((cat) => ({
+                label: cat.categoryName,
+                value: cat._id,
+              }))}
+              style={{ width: "100%" }}
+            />
+          </Form.Item>
+          <Form.Item
+            label="Trạng thái"
+            name="status"
+            rules={[{ required: true, message: "Vui lòng chọn trạng thái" }]}
+          >
+            <Select placeholder="Chọn trạng thái">
+              <Select.Option value="inProgress">Đang tiến hành</Select.Option>
+              <Select.Option value="completed">Hoàn thành</Select.Option>
+            </Select>
+          </Form.Item>
           <Form.Item label="Bìa truyện" name="imgUrl">
             <UploadImg
               onUploadSuccess={(url: string) => {

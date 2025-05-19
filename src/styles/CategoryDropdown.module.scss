@@ -1,34 +1,43 @@
 .dropdownContent {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  z-index: 1000;
+  padding: 15px;
+}
+
+.dropdownList {
   display: grid;
   grid-template-columns: repeat(4, 1fr); // 4 cột
-  gap: 10px; // Khoảng cách giữa các mục
-  padding: 15px; // Khoảng cách bên trong
-  background: #fff; // Màu nền trắng
-  border: 1px solid #ddd; // Viền mỏng
-  border-radius: 8px; // Bo góc
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Đổ bóng
-  max-width: 600px; // Giới hạn chiều rộng
-  z-index: 1000; // Đảm bảo dropdown nằm trên các thành phần khác
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-.row {
-  display: contents; // Để các cell nằm trong grid
+.dropdownItem {
+  // Không cần display: contents vì li là grid item
 }
 
-.cell {
-  font-size: 16px !important; // Kích thước chữ
-  color: #333 !important; // Màu chữ mặc định
-  cursor: pointer !important; // Con trỏ chuột dạng pointer
-  transition: color 0.2s, transform 0.2s !important; // Hiệu ứng chuyển đổi
+.dropdownLink {
+  font-size: 16px !important;
+  color: #333 !important;
+  cursor: pointer !important;
+  transition: color 0.2s, transform 0.2s !important;
+  padding: 6px 8px !important;
+  border-radius: 4px !important;
+  text-decoration: none !important;
 
   &:hover {
-    color: red !important; // Chuyển sang màu đỏ khi hover
-    transform: scale(1.05) !important; // Phóng to nhẹ khi hover
-    text-decoration: none !important; // Bỏ gạch chân khi hover
+    color: #f8276f !important;
+    transform: scale(1.05) !important;
+    text-decoration: none !important;
   }
 
   &.highlight {
-    color: red !important; // Màu đỏ cho các mục nổi bật
-    font-weight: bold !important; // In đậm
+    color: #f8276f !important;
+    font-weight: bold !important;
   }
 }

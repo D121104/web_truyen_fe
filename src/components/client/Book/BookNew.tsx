@@ -1,13 +1,16 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { Pagination } from "antd";
 import Link from "next/link";
 import { useAppSelector } from "@/lib/redux/hooks";
-import { getBooks } from "@/config/api";
+import { getBooks, getBooksByIds } from "@/config/api";
 import { IBook } from "@/types/backend";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import styles from "@/styles/BookNew.module.scss";
 import classNames from "classnames/bind";
+import { useParams, usePathname, useSearchParams } from "next/navigation";
 import {
   EyeFilled,
   HeartFilled,
@@ -15,12 +18,22 @@ import {
   StarFilled,
 } from "@ant-design/icons";
 
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
+
 const cx = classNames.bind(styles);
 
 const BookNew: React.FC = () => {
   const pageTitle = useAppSelector((state) => state.auth.pageTitle);
+  const pathname = usePathname();
+  const userBookIds = useAppSelector((state) => state.auth.user.books) || [];
   const [books, setBooks] = useState<IBook[]>([]);
   const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const categoryId = searchParams.get("categoryId") || "";
+  const status = searchParams.get("status") || "";
+  const period = searchParams.get("period") || "";
+
   const [pagination, setPagination] = useState<{
     current: number;
     pageSize: number;
@@ -28,15 +41,20 @@ const BookNew: React.FC = () => {
     pages: number;
   }>({
     current: 1,
-    pageSize: 10,
+    pageSize: 36,
     total: 0,
     pages: 0,
   });
 
-  const fetchBooks = async (current = 1, pageSize = 10, title = "") => {
+  const fetchBooks = async (current = 1, pageSize = 36, title = "") => {
     setLoading(true);
     try {
-      const res = await getBooks({ current, pageSize, title });
+      const res = await getBooks({
+        current,
+        pageSize,
+        title,
+        sort: "-updatedAt",
+      });
 
       if (res.code === 200) {
         setBooks(res.data?.result as IBook[]);
@@ -54,9 +72,80 @@ const BookNew: React.FC = () => {
     }
   };
 
+  const fetchUserBooks = async () => {
+    setLoading(true);
+    try {
+      console.log("userBookIds", userBookIds);
+      const res = await getBooksByIds(userBookIds);
+      setBooks(res.data?.result as IBook[]);
+      setPagination(
+        res.data?.meta ?? { current: 1, pageSize: 10, total: 0, pages: 0 }
+      );
+    } catch (error) {
+      console.error("Lỗi khi tải danh sách sách theo dõi:", error);
+      toast.error("Đã xảy ra lỗi khi tải dữ liệu");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchBooksByCategory = async (
+    current = 1,
+    pageSize = 36,
+    categoryId: string,
+    status: string,
+    period: string
+  ) => {
+    setLoading(true);
+    try {
+      const res = await getBooks({
+        current,
+        pageSize,
+        categoryId,
+        status,
+        period,
+      });
+      if (res.code === 200) {
+        setBooks(res.data?.result as IBook[]);
+        setPagination(
+          res.data?.meta ?? { current: 1, pageSize: 10, total: 0, pages: 0 }
+        );
+      } else {
+        toast.error(res.message || "Không thể tải danh sách truyện");
+      }
+    } catch (error) {
+      console.error("Lỗi khi tải danh sách sách:", error);
+      toast.error("Đã xảy ra lỗi khi tải dữ liệu");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchBooks(pagination.current, pagination.pageSize);
-  }, []);
+    if (pathname === "/") {
+      fetchBooks(pagination.current, pagination.pageSize);
+    } else if (pathname === "/follow") {
+      fetchUserBooks();
+    } else if (pathname === "/history") {
+      fetchUserBooks();
+    } else if (pathname.startsWith("/search")) {
+      fetchBooksByCategory(
+        pagination.current,
+        pagination.pageSize,
+        categoryId,
+        status,
+        period
+      );
+    }
+  }, [
+    pathname,
+    pagination.current,
+    pagination.pageSize,
+    userBookIds,
+    categoryId,
+    status,
+    period,
+  ]);
 
   const handlePageChange = (page: number) => {
     setPagination((prev) => ({ ...prev, current: page }));
@@ -72,55 +161,64 @@ const BookNew: React.FC = () => {
         </div>
       </section>
       <div className={styles.bookGrid}>
-        {books.map((book) => (
-          <div key={book._id} className={styles.bookCard}>
-            <Link href={`/book/${book._id}`} style={{ textDecoration: "none" }}>
-              <div className={styles.imageWrapper}>
-                <img
-                  src={book.imgUrl}
-                  alt={book.bookTitle}
-                  className={styles.bookImage}
-                />
-                <div className={styles.overlay}>
-                  <span>
-                    <EyeFilled /> {book.view ?? 0}
-                  </span>
-                  <span>
-                    <HeartFilled /> {book.users?.length ?? 0}
-                  </span>
-                  <span>
-                    <MessageFilled /> {book.comments?.length ?? 0}
-                  </span>
-                </div>
-              </div>
-            </Link>
-
-            <div className={styles.bookInfo}>
+        {books.length > 0 &&
+          books?.map((book) => (
+            <div key={book._id} className={styles.bookCard}>
               <Link
-                href={`/book/${book._id}`}
-                style={{ textDecoration: "none", color: "#1d1d1d" }}
+                href={`/book/${book._id}?limit=all`}
+                style={{ textDecoration: "none" }}
               >
-                <h3 className={styles.bookTitle}>{book.bookTitle}</h3>
+                <div className={styles.imageWrapper}>
+                  <img
+                    src={book.imgUrl}
+                    alt={book.bookTitle}
+                    className={styles.bookImage}
+                  />
+                  <div className={styles.overlay}>
+                    <span>
+                      <EyeFilled /> {book.totalViews ?? 0}
+                    </span>
+                    <span>
+                      <HeartFilled /> {book.users?.length ?? 0}
+                    </span>
+                    <span>
+                      <MessageFilled /> {book.comments?.length ?? 0}
+                    </span>
+                  </div>
+                </div>
               </Link>
 
-              <div className={styles.bookChapters}>
-                {book.chapters?.length > 0 &&
-                  book.chapters.map((chapter, index) => (
-                    <Link
-                      key={chapter._id}
-                      href={`/book/${book._id}/chapter/${chapter._id}`}
-                      style={{ textDecoration: "none", color: "#1d1d1d" }}
-                    >
-                      <div className={styles.chapter}>
-                        <p>Chapter {chapter.chapterNumber} </p>
-                        <p>{dayjs(chapter.updatedAt).format("DD/MM/YYYY")}</p>
-                      </div>
-                    </Link>
-                  ))}
+              <div className={styles.bookInfo}>
+                <Link
+                  href={`/book/${book._id}?limit=all`}
+                  style={{ textDecoration: "none", color: "#1d1d1d" }}
+                >
+                  <h3 className={styles.bookTitle}>{book.bookTitle}</h3>
+                </Link>
+
+                <div className={styles.bookChapters}>
+                  {book.chapters?.length > 0 &&
+                    book.chapters.map((chapter, index) => (
+                      <Link
+                        key={chapter._id}
+                        href={`/book/${book._id}/chapter/${chapter._id}`}
+                        style={{ textDecoration: "none", color: "#1d1d1d" }}
+                      >
+                        <div className={styles.chapter}>
+                          <p>Chapter {chapter.chapterNumber} </p>
+                          <p>
+                            {" "}
+                            {dayjs().diff(dayjs(chapter.createdAt), "day") > 7
+                              ? dayjs(chapter.createdAt).format("DD/MM/YYYY")
+                              : dayjs(chapter.createdAt).fromNow()}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
       <div
         style={{ display: "flex", marginTop: "20px", justifyContent: "center" }}

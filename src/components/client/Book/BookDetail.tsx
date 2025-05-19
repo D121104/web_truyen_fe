@@ -1,3 +1,5 @@
+"use client";
+
 import styles from "@/styles/BookDetail.module.scss";
 import { IBook, IChapter } from "@/types/backend";
 import {
@@ -6,16 +8,23 @@ import {
   HeartFilled,
   LikeFilled,
   LoadingOutlined,
+  LockOutlined,
   StepForwardFilled,
   TagsOutlined,
   TeamOutlined,
+  UnlockOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { faker } from "@faker-js/faker";
+
 import dayjs from "dayjs";
 import Link from "next/link";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import { followBook, unfollowBook } from "@/config/api";
+import { fetchAccount } from "@/lib/redux/slice/auth.slice";
+import { useRouter } from "next/navigation";
+import { Button, Popconfirm } from "antd";
 
 dayjs.extend(relativeTime);
 
@@ -25,15 +34,82 @@ interface IProps {
 
 const BookDetail: React.FC<IProps> = (props: IProps) => {
   const { book } = props;
+  const [totalViews, setTotalViews] = useState(0);
+  const user = useAppSelector((state) => state.auth.user);
+  const books = useAppSelector((state) => state.auth.user.books);
+  const [loading, setLoading] = useState(false);
+  const isFollowing = books?.includes(book._id);
+  const [isLiked, setIsLiked] = useState(false);
+  const dispatch = useAppDispatch();
+  console.log("user", user);
 
   // State để quản lý hiển thị danh sách chương
   const [showAllChapters, setShowAllChapters] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
+  // const [chaptersToShow, setChaptersToShow] = useState<IChapter[]>([]);
   // Lấy danh sách chương hiển thị (15 chương mới nhất hoặc toàn bộ)
-  console.log("book", book);
-  const chaptersToShow = showAllChapters
-    ? book.chapters ?? []
-    : book.chapters.slice(0, 15);
+
+  const [chaptersToShow, setChaptersToShow] = useState<IChapter[]>([]);
+
+  useEffect(() => {
+    // Nếu không có chương nào, ẩn nút "Xem thêm"
+    if (book.chapters.length === 0) {
+      setShowAllChapters(false);
+    }
+    const totalViews = book.chapters.reduce((acc, chapter) => {
+      return acc + (chapter.views || 0);
+    }, 0);
+    setTotalViews(totalViews);
+    if (!showAllChapters) {
+      setChaptersToShow(book?.chapters.slice(0, 15));
+    } else {
+      setChaptersToShow(book?.chapters);
+    }
+  }, [book.chapters, setChaptersToShow, showAllChapters]);
+
+  const handleFollow = async () => {
+    setLoading(true);
+    try {
+      let res;
+      if (isFollowing) {
+        res = await unfollowBook(user._id, book._id);
+      } else {
+        res = await followBook(user._id, book._id);
+      }
+      if (res.code === 200) {
+        // Sau khi follow/unfollow, nên gọi lại API lấy user mới nhất hoặc dispatch cập nhật Redux
+        dispatch(fetchAccount());
+        console.log("user", user);
+        if (isFollowing) {
+          console.log("Đã bỏ theo dõi sách");
+        } else {
+          console.log("Đã theo dõi sách");
+        }
+      } else {
+        console.error("Lỗi khi xử lý theo dõi", res.message);
+      }
+    } catch (error) {
+      console.error("Lỗi khi gửi yêu cầu theo dõi", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const router = useRouter();
+  const [buyModalOpen, setBuyModalOpen] = useState(false);
+  interface HandleClickParams {
+    isBought: boolean;
+    chapter: IChapter;
+  }
+
+  const handleClick = (isBought: boolean, chapter: IChapter): void => {
+    if (isBought) {
+      // Nếu đã mua, cho phép đọc chương
+      router.push(`/chapter/${book._id}/${chapter._id}`);
+    } else {
+      // Nếu chưa mua, hiển thị thông báo hoặc thực hiện hành động khác
+      setBuyModalOpen(true);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -72,9 +148,7 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
                 />
                 Tình trạng:
               </span>
-              <span className={styles.infoDetail}>
-                {book.status ?? "Hoàn thành"}
-              </span>
+              <span className={styles.infoDetail}>{book.status}</span>
             </div>
             <div className={styles.infoRow}>
               <span className={styles.infoName}>
@@ -92,7 +166,7 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
                       style={{ textDecoration: "none" }}
                     >
                       {" "}
-                      <span className={styles.tag}>{genre}</span>
+                      <span className={styles.tag}>{genre.categoryName}</span>
                     </Link>
                   ))}
                 </div>
@@ -117,14 +191,14 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
                 <EyeFilled style={{ color: "#f4a82c", marginRight: "10px" }} />
                 Lượt xem
               </span>
-              <h4>3.170.855</h4>
+              <h4>{totalViews}</h4>
             </div>
             <div className={styles.statItem}>
               <span>
                 <LikeFilled style={{ color: "#3376bc", marginRight: "10px" }} />
                 Lượt thích
               </span>
-              <h4>936</h4>
+              <h4>0</h4>
             </div>
             <div className={styles.statItem}>
               <span>
@@ -133,7 +207,7 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
                 />
                 Theo dõi
               </span>
-              <h4>9.422</h4>
+              <h4>0</h4>
             </div>
           </div>
         </div>
@@ -156,12 +230,24 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
         >
           Đọc từ đầu
         </button>
-        <button
-          className={styles.button}
-          style={{ backgroundColor: "#01877e" }}
-        >
-          Bỏ theo dõi
-        </button>
+        {isFollowing ? (
+          <button
+            className={styles.button}
+            style={{ backgroundColor: "#01877e" }}
+            onClick={handleFollow}
+          >
+            Bỏ theo dõi
+          </button>
+        ) : (
+          <button
+            className={styles.button}
+            style={{ backgroundColor: "#01877e" }}
+            onClick={handleFollow}
+          >
+            Theo dõi
+          </button>
+        )}
+
         <button
           className={styles.button}
           style={{ backgroundColor: "#3376bc" }}
@@ -202,29 +288,43 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
           <span className={styles.chapterViews}>Lượt xem</span>
         </div>
         <div className={styles.chapterList}>
-          {chaptersToShow.map((chapter: IChapter) => (
-            <div key={chapter.chapterNumber} className={styles.chapterRow}>
-              <Link
-                href={`/book/${book._id}/chapter/${chapter._id}`}
-                style={{
-                  textDecoration: "none",
-                  color: "#1d1d1d",
-                  height: "20px",
-                  width: "65%",
-                }}
-              >
+          {chaptersToShow.map((chapter: IChapter) => {
+            const isBought = chapter.users?.includes(user._id);
+            return (
+              <div key={chapter.chapterNumber} className={styles.chapterRow}>
                 <div>
-                  <span className={styles.chapterNumber}>
+                  <span
+                    className={styles.chapterNumber}
+                    onClick={() => handleClick(isBought, chapter)}
+                  >
                     Chương {chapter.chapterNumber}: {chapter.chapterTitle}
                   </span>
                 </div>
-              </Link>{" "}
-              <span className={styles.chapterTime}>
-                {dayjs(chapter.updatedAt).fromNow()}
-              </span>
-              <span className={styles.chapterViews}>{0}</span>
-            </div>
-          ))}
+                <div className={styles.chapterInfo}>
+                  {isBought ? (
+                    <UnlockOutlined style={{ color: "yellow" }} />
+                  ) : (
+                    <div className={styles.chapterPrice}>
+                      <>{chapter?.price}</>
+                      <LockOutlined
+                        style={{ color: "red", marginLeft: "10px" }}
+                      />
+                    </div>
+                  )}
+                  <span className={styles.chapterTime}>
+                    {dayjs().diff(dayjs(chapter.createdAt), "day") > 7
+                      ? dayjs(chapter.createdAt).format("DD/MM/YYYY")
+                      : dayjs(chapter.createdAt).fromNow()}
+                  </span>
+                  <span className={styles.chapterViews}>{chapter.views}</span>
+                </div>
+                <Popconfirm
+                  title={`Bạn có chắc chắn muốn mua chương này với ${chapter.price} coin?`}
+                  open={buyModalOpen}
+                ></Popconfirm>
+              </div>
+            );
+          })}
         </div>
         {/* Nút Xem thêm */}
         {!showAllChapters && (

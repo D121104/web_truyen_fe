@@ -45,7 +45,7 @@
     transition: background-color 0.3s;
 
     &:hover {
-      background-color: #4361ee;
+      background-color: #5d76e9;
     }
   }
 }
@@ -74,7 +74,7 @@
 }
 
 .followButton {
-  background-color: #28a745;
+  background-color: #01877e;
   color: #ffffff;
   border: none;
   border-radius: 4px;
@@ -83,11 +83,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-left: 10px;
   cursor: pointer;
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: #218838;
+    background-color: #037e5f;
   }
 
   svg {

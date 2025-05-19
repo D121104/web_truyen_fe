@@ -25,14 +25,15 @@ import dayjs from "dayjs";
 //   fetchSkills,
 //   updateUserPassword,
 // } from "@/config/api";
-import { SmileOutlined } from "@ant-design/icons";
+
 import { FormProps } from "antd/lib";
 import { useAppSelector } from "@/lib/redux/hooks";
-import { ITranslatorGroup } from "@/types/backend";
-import { getGroupsByUser } from "@/config/api";
+import { ITranslatorGroup, IUser } from "@/types/backend";
+import { getGroupsByUser, updateUserPassword } from "@/config/api";
 import { toast } from "react-toastify";
 import Title from "antd/es/typography/Title";
 import { useRouter } from "next/router";
+import UploadImg from "@/components/client/Upload/Upload";
 
 interface IProps {
   open: boolean;
@@ -45,34 +46,47 @@ interface FieldType {
   repeatedPassword: string;
 }
 
+interface IUserInfo {
+  name: string;
+  email: string;
+
+  avatarUrl: string;
+  coin: number;
+}
+
+interface IUserPayment {
+  money: number;
+}
+
 const UpdateUserPassword = (props: any) => {
-  //   const userId = useAppSelector((state) => state.auth.user?._id);
-  //   const [loading, setLoading] = useState(false);
-  //   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-  //     const { password, newPassword, repeatedPassword } = values;
+  const userId = useAppSelector((state) => state.auth.user?._id);
+  const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm();
+  const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
+    const { password, newPassword, repeatedPassword } = values;
 
-  //     if (newPassword.length < 6) {
-  //       message.error("Mật khẩu mới phải có ít nhất 6 ký tự!");
-  //       return;
-  //     }
+    if (newPassword.length < 6) {
+      toast.error("Mật khẩu mới phải có ít nhất 6 ký tự!");
+      return;
+    }
 
-  //     if (newPassword !== repeatedPassword) {
-  //       message.error("Mật khẩu nhập lại không khớp!");
-  //       return;
-  //     }
-  //     setLoading(true);
-  //     const res = await updateUserPassword(userId, values);
-  //     if (res.code === 200) {
-  //       setLoading(false);
-  //       message.success("Thay đổi mật khẩu thành công!");
-  //     } else {
-  //       notification.error({
-  //         message: "Thay đổi mật khẩu thất bại",
-  //         description: res.message,
-  //       });
-  //       setLoading(false);
-  //     }
-  //   };
+    if (newPassword !== repeatedPassword) {
+      toast.error("Mật khẩu nhập lại không khớp!");
+      return;
+    }
+    setLoading(true);
+    const res = await updateUserPassword(userId, { password, newPassword });
+    if (res.code === 200) {
+      setLoading(false);
+      toast.success("Thay đổi mật khẩu thành công!");
+    } else {
+      notification.error({
+        message: "Thay đổi mật khẩu thất bại",
+        description: res.message,
+      });
+      setLoading(false);
+    }
+  };
 
   const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
     errorInfo
@@ -90,7 +104,7 @@ const UpdateUserPassword = (props: any) => {
         wrapperCol={{ span: 16 }}
         style={{ maxWidth: 700, margin: "0 auto" }}
         initialValues={{ remember: true }}
-        // onFinish={onFinish}
+        onFinish={onFinish}
         onFinishFailed={onFinishFailed}
         autoComplete="off"
       >
@@ -125,9 +139,9 @@ const UpdateUserPassword = (props: any) => {
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          {/* <Button loading={loading} type="primary" htmlType="submit">
+          <Button loading={loading} type="primary" htmlType="submit">
             Xác nhận
-          </Button> */}
+          </Button>
         </Form.Item>
       </Form>
     </>
@@ -264,10 +278,124 @@ const UserGroups: React.FC = () => {
   );
 };
 
+const UserInfo: React.FC = () => {
+  const user = useAppSelector((state) => state.auth.user); // Lấy user từ redux
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      form.setFieldsValue({
+        name: user.name,
+        email: user.email,
+        avatarUrl: user.avatar,
+        coin: user.coin,
+      });
+    }
+  }, [user, form]);
+
+  return (
+    <div>
+      <h2 style={{ textAlign: "center", marginBottom: 10 }}>
+        Thông tin tài khoản
+      </h2>
+      <Form
+        form={form}
+        name="basic"
+        labelCol={{ span: 8 }}
+        wrapperCol={{ span: 16 }}
+        style={{ maxWidth: 700, margin: "0 auto" }}
+        initialValues={{ remember: true }}
+        autoComplete="off"
+      >
+        <Form.Item<IUserInfo>
+          label="Tên"
+          name="name"
+          rules={[
+            { required: true, message: "Trường này không được để trống!" },
+          ]}
+        >
+          <Input placeholder={user.name} />
+        </Form.Item>
+
+        <Form.Item<IUserInfo> label="Email" name="email">
+          <Input placeholder={user.email} disabled />
+        </Form.Item>
+
+        <Form.Item<IUserInfo> name="avatarUrl" label="Ảnh đại diện">
+          <UploadImg
+            onUploadSuccess={(url: string) => {
+              form.setFieldsValue({ imgUrl: url });
+            }}
+          />
+        </Form.Item>
+
+        <Form.Item<IUserInfo> name="coin" label="Coin">
+          <Input placeholder={user.coin ?? 0} disabled />
+        </Form.Item>
+
+        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+          <Button loading={loading} type="primary" htmlType="submit">
+            Xác nhận
+          </Button>
+        </Form.Item>
+      </Form>
+    </div>
+  );
+};
+
+const UserPayment: React.FC = () => {
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+
+  return (
+    <div>
+      <h2 style={{ textAlign: "center", marginBottom: 10 }}>
+        Nạp tiền vào tài khoản
+      </h2>
+      <Form
+        form={form}
+        name="basic"
+        labelCol={{ span: 8 }}
+        wrapperCol={{ span: 16 }}
+        style={{ maxWidth: 700, margin: "0 auto" }}
+        initialValues={{ remember: true }}
+        autoComplete="off"
+      >
+        <Form.Item<IUserPayment>
+          label="Số tiền nạp"
+          name="money"
+          rules={[
+            { required: true, message: "Trường này không được để trống!" },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+          <Button loading={loading} type="primary" htmlType="submit">
+            Xác nhận
+          </Button>
+        </Form.Item>
+      </Form>
+    </div>
+  );
+};
+
 const ManageUser = (props: IProps) => {
   const { open, setOpen } = props;
 
   const items: TabsProps["items"] = [
+    {
+      key: "user-info",
+      label: `Thông tin tài khoản`,
+      children: <UserInfo />,
+    },
+    {
+      key: "user-payment",
+      label: `Nạp tiền`,
+      children: <UserPayment />,
+    },
     {
       key: "user-password",
       label: `Thay đổi mật khẩu`,

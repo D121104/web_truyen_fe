@@ -234,6 +234,52 @@
     padding: 5px;
     border-bottom: 1px solid #ddd;
     height: 20px;
+    justify-content: space-between;
+    .chapterNumber {
+      flex: 4;
+      text-align: start;
+      color: #1a1a1a;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100px !important;
+
+      &:hover {
+        color: #3aafa9;
+      }
+    }
+
+    .chapterInfo {
+      flex: 2;
+      text-align: start;
+      color: #666;
+
+      display: flex;
+      margin-left: 50px;
+
+      &:hover {
+        color: #3aafa9;
+      }
+
+      .chapterPrice {
+        flex: 3;
+        text-align: end;
+        color: #b12020;
+        gap: 10px;
+      }
+
+      .chapterTime {
+        flex: 1;
+        text-align: center;
+        color: #666;
+      }
+
+      .chapterViews {
+        flex: 1;
+        text-align: center;
+        color: #666;
+      }
+    }
   }
 
   cursor: pointer;
@@ -243,28 +289,6 @@
   //   color: inherit;
   //   height: 1rem !important;
   // }
-  .chapterNumber {
-    flex: 4;
-    text-align: start;
-    color: #1a1a1a;
-    font-weight: 600;
-
-    &:hover {
-      color: #3aafa9;
-    }
-  }
-
-  .chapterTime {
-    flex: 1;
-    text-align: center;
-    color: #666;
-  }
-
-  .chapterViews {
-    flex: 1;
-    text-align: center;
-    color: #666;
-  }
 }
 
 .synopsis {

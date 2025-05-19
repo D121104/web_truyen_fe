@@ -38,6 +38,9 @@ export interface IUser {
   deletedAt?: boolean | null;
   createdAt?: string;
   updatedAt?: string;
+  avatar?: string;
+  books?: string[];
+  chapters?: string[];
 }
 
 export interface ILoginUser {
@@ -59,14 +62,14 @@ export interface IBook {
   bookTitle: string;
   description?: string;
   imgUrl: string;
-  view: number;
+  totalViews?: number;
   author?: string;
   status: string;
-  categories: Category[];
+  categories: ICategory[];
   translatorGroup?: ITranslatorGroup;
-  chapters: Chapter[];
-  users?: User[];
-  comments?: Comment[];
+  chapters: IChapter[];
+  users?: IUser[];
+  comments?: IComment[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -94,7 +97,8 @@ export interface ICreateComment {
 
 export interface ICategory {
   _id?: string;
-  name: string;
+  categoryName: string;
+  description?: string;
   books?: string[];
 }
 
@@ -106,8 +110,8 @@ export interface IBuyHistory {
 }
 
 export interface IChapter {
-  _id?: string;
-  chapterNumber: number;
+  _id: string;
+  chapterNumber: string;
   chapterTitle: string;
   price: number;
   status: string;
@@ -115,6 +119,17 @@ export interface IChapter {
   images: string[];
   createdAt?: string;
   updatedAt?: string;
+  views?: number;
+  users?: string[];
+  viewsHistory?: {
+    date: Date;
+    views: number;
+  }[];
+}
+
+export interface ViewHistoryDto {
+  date: string | Date;
+  views: number;
 }
 
 export interface ITranslatorGroup {
@@ -148,4 +163,17 @@ export interface INotification {
   deletedAt?: boolean | null;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface IReadingHistory {
+  _id?: string;
+  userId: string;
+  bookId: string;
+  chapterId: string;
+  time: number;
+  createdAt?: string;
+  updatedAt?: string;
+  chapterNumber?: string;
+  bookTitle?: string;
+  bookImg?: string;
 }
