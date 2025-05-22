@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import styles from "@/styles/Content.module.scss";
 import TrendingBook from "@/components/client/Book/Book.carousel";
 
@@ -21,19 +21,14 @@ import { useParams, useSearchParams } from "next/navigation";
 
 const cx = classNames.bind(styles);
 
-const Content: React.FC = (props: any) => {
+const ContentInner: React.FC = (props: any) => {
   const dispatch = useAppDispatch();
-  const bookId = useParams().bookId;
+  const bookId = useParams().bookId as string;
   const [comments, setComments] = useState<IComment[]>([]);
-
   const [book, setBook] = useState<IBook>();
-
   const [totalComments, setTotalComments] = useState(0);
-
   const [commentValue, setCommentValue] = useState("");
-
   const [commentLoading, setCommentLoading] = useState(false);
-
   const [loading, setLoading] = useState(true);
 
   const isAuth = useAppSelector((state) => state.auth.isAuthenticated);
@@ -58,7 +53,6 @@ const Content: React.FC = (props: any) => {
       const commentList = await getComments({
         current: 1,
         pageSize: 50,
-
         bookId: bookId,
       });
       let totalLenght = commentList.data?.result?.length as number;
@@ -140,9 +134,9 @@ const Content: React.FC = (props: any) => {
   };
   return (
     <div className={cx("contentWrapper")}>
-      {loading ? ( // Kiểm tra trạng thái loading
+      {loading ? (
         <div className={cx("loadingWrapper")}>
-          <Spin size="large" /> {/* Hiển thị icon loading */}
+          <Spin size="large" />
         </div>
       ) : (
         <div className={cx("mainWrapper")}>
@@ -198,5 +192,11 @@ const Content: React.FC = (props: any) => {
     </div>
   );
 };
+
+const Content: React.FC = (props: any) => (
+  <Suspense>
+    <ContentInner {...props} />
+  </Suspense>
+);
 
 export default Content;

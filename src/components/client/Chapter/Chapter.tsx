@@ -27,9 +27,9 @@ interface IProps {
 const Chapter: React.FC<IProps> = (props: IProps) => {
   const { bookId, chapterId } = props;
   const [loading, setLoading] = useState(false);
-  const [chapter, setChapter] = useState<IChapter>(null);
+  const [chapter, setChapter] = useState<IChapter>();
   const router = useRouter();
-  const [book, setBook] = useState<IBook>(null);
+  const [book, setBook] = useState<IBook>();
   const [index, setIndex] = useState(0);
   const userId = useAppSelector((state) => state.auth.user._id);
 
@@ -39,7 +39,7 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
       const res = await getBookById(bookId, "all", "-1");
       if (res.code === 200) {
         setBook(res.data);
-        const chapters = res.data.chapters || [];
+        const chapters = res.data?.chapters || [];
         const currentChapter = chapters.find(
           (chapter) => chapter._id === chapterId
         );
@@ -49,14 +49,17 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
           if (currentChapter && typeof currentChapter.views === "number") {
             // Xử lý cập nhật viewsHistory
             const todayStr = new Date().toISOString().slice(0, 10);
-            const viewsHistory = Array.isArray(currentChapter.viewsHistory)
+            type ViewHistoryItem = { date: string | Date; views: number };
+            const viewsHistory: ViewHistoryItem[] = Array.isArray(
+              currentChapter.viewsHistory
+            )
               ? currentChapter.viewsHistory.map(({ date, views }) => ({
                   date,
                   views,
                 }))
               : [];
             const todayHistory = viewsHistory.find(
-              (v) =>
+              (v: ViewHistoryItem) =>
                 v.date &&
                 (typeof v.date === "string"
                   ? v.date.slice(0, 10) === todayStr
@@ -71,13 +74,13 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
             await updateChapter({
               _id: currentChapter._id,
               views: currentChapter.views + 1,
-              viewsHistory,
+              viewsHistory: viewsHistory as any,
             });
 
             setChapter({
               ...currentChapter,
               views: currentChapter.views + 1,
-              viewsHistory,
+              viewsHistory: viewsHistory as any,
             });
           }
           console.log("currentChapter", currentChapter);
@@ -202,7 +205,7 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
         </div>
 
         <div className={styles.navigation}>
-          {index < book?.chapters?.length - 1 && (
+          {book?.chapters && index < book.chapters.length - 1 && (
             <button
               className={styles.navButton}
               onClick={() => handleNavigation("next")}
@@ -221,8 +224,9 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
 
       {/* Chapter Content */}
       <div className={styles.chapterContent}>
-        {chapter?.images?.length > 0 &&
-          chapter?.images?.map((image, index) => (
+        {Array.isArray(chapter?.images) &&
+          chapter.images.length > 0 &&
+          chapter.images.map((image, index) => (
             <img
               key={index}
               src={image}

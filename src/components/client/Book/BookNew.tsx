@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { Pagination } from "antd";
 import Link from "next/link";
 import { useAppSelector } from "@/lib/redux/hooks";
@@ -23,7 +23,7 @@ dayjs.extend(relativeTime);
 
 const cx = classNames.bind(styles);
 
-const BookNew: React.FC = () => {
+const BookNewContent: React.FC = () => {
   const pageTitle = useAppSelector((state) => state.auth.pageTitle);
   const pathname = usePathname();
   const userBookIds = useAppSelector((state) => state.auth.user.books) || [];
@@ -75,8 +75,7 @@ const BookNew: React.FC = () => {
   const fetchUserBooks = async () => {
     setLoading(true);
     try {
-      console.log("userBookIds", userBookIds);
-      const res = await getBooksByIds(userBookIds);
+      const res = await getBooksByIds(userBookIds as any);
       setBooks(res.data?.result as IBook[]);
       setPagination(
         res.data?.meta ?? { current: 1, pageSize: 10, total: 0, pages: 0 }
@@ -137,6 +136,7 @@ const BookNew: React.FC = () => {
         period
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     pathname,
     pagination.current,
@@ -149,7 +149,7 @@ const BookNew: React.FC = () => {
 
   const handlePageChange = (page: number) => {
     setPagination((prev) => ({ ...prev, current: page }));
-    fetchBooks(page, pagination.pageSize); // Fetch lại API với trang mới
+    fetchBooks(page, pagination.pageSize);
   };
 
   return (
@@ -224,11 +224,11 @@ const BookNew: React.FC = () => {
         style={{ display: "flex", marginTop: "20px", justifyContent: "center" }}
       >
         <Pagination
-          current={pagination.current} // Trang hiện tại
-          pageSize={pagination.pageSize} // Số item mỗi trang
-          total={pagination.total} // Tổng số item
-          onChange={handlePageChange} // Hàm xử lý khi đổi trang
-          showTotal={(total) => `Tổng ${total} truyện`} // Hiển thị tổng số item
+          current={pagination.current}
+          pageSize={pagination.pageSize}
+          total={pagination.total}
+          onChange={handlePageChange}
+          showTotal={(total) => `Tổng ${total} truyện`}
           showQuickJumper
           showSizeChanger={false}
         />
@@ -236,5 +236,11 @@ const BookNew: React.FC = () => {
     </div>
   );
 };
+
+const BookNew: React.FC = (props) => (
+  <Suspense>
+    <BookNewContent {...props} />
+  </Suspense>
+);
 
 export default BookNew;

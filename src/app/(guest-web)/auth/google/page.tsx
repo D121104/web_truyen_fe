@@ -6,17 +6,12 @@ import { message } from "antd";
 import { useSearchParams, useRouter } from "next/navigation";
 import React, { Suspense, useEffect } from "react";
 
-const GoogleAuth = (props: any) => {
+const GoogleAuthContent = () => {
   const searchParams = useSearchParams();
-
   const navigate = useRouter();
-
   const token = searchParams.get("token");
-
   const isAuth = useAppSelector((state) => state.auth.isAuthenticated);
-
   const isLoading = useAppSelector((state) => state.auth.isLoading);
-
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -42,7 +37,13 @@ const GoogleAuth = (props: any) => {
     }
   }, [isLoading]);
 
-  return <></>;
+  return null;
 };
+
+const GoogleAuth = (props: any) => (
+  <Suspense>
+    <GoogleAuthContent {...props} />
+  </Suspense>
+);
 
 export default GoogleAuth;

@@ -24,7 +24,7 @@ const CategoryDropdown: React.FC = () => {
         if (res.code !== 200) {
           throw new Error("Failed to fetch categories");
         }
-        setCategories(res?.data?.result);
+        setCategories(res?.data?.result as any);
       } catch (error) {
         console.error("Error fetching categories:", error);
       } finally {

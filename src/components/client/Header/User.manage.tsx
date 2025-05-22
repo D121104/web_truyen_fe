@@ -75,15 +75,14 @@ const UpdateUserPassword = (props: any) => {
       return;
     }
     setLoading(true);
-    const res = await updateUserPassword(userId, { password, newPassword });
-    if (res.code === 200) {
+    const res = await updateUserPassword(userId, { password });
+    if (res.code === 201) {
       setLoading(false);
       toast.success("Thay đổi mật khẩu thành công!");
     } else {
-      notification.error({
-        message: "Thay đổi mật khẩu thất bại",
-        description: res.message,
-      });
+      const msg =
+        typeof res.message === "string" ? res.message : res.message.join(", ");
+      toast.error(msg);
       setLoading(false);
     }
   };
@@ -109,7 +108,7 @@ const UpdateUserPassword = (props: any) => {
         autoComplete="off"
       >
         <Form.Item<FieldType>
-          label="Nhập mật khẩu cũ"
+          label="Mật khẩu cũ"
           name="password"
           rules={[
             { required: true, message: "Trường này không được để trống!" },
@@ -119,7 +118,7 @@ const UpdateUserPassword = (props: any) => {
         </Form.Item>
 
         <Form.Item<FieldType>
-          label="Nhập mật khẩu mới"
+          label="Mật khẩu mới"
           name="newPassword"
           rules={[
             { required: true, message: "Trường này không được để trống!" },
@@ -130,7 +129,7 @@ const UpdateUserPassword = (props: any) => {
 
         <Form.Item<FieldType>
           name="repeatedPassword"
-          label="Nhập lại mật khẩu mới"
+          label="Nhập lại mật khẩu Mới"
           rules={[
             { required: true, message: "Trường này không được để trống!" },
           ]}
@@ -331,7 +330,7 @@ const UserInfo: React.FC = () => {
         </Form.Item>
 
         <Form.Item<IUserInfo> name="coin" label="Coin">
-          <Input placeholder={user.coin ?? 0} disabled />
+          <Input placeholder={(user.coin ?? 0).toString()} disabled />
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>

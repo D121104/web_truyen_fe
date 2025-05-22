@@ -42,12 +42,12 @@ const BookList: React.FC = () => {
       const res = await getGroupById(groupId); // Gọi API lấy thông tin nhóm
       if (res.code === 200) {
         const groupData = res.data; // Lấy thông tin nhóm từ API
-        setGroup(groupData); // Lưu thông tin nhóm vào state
+        setGroup(groupData as any); // Lưu thông tin nhóm vào state
         // console.log("Group data:", groupData);
 
         // Lấy thông tin chi tiết của từng sách
         const bookDetails = await Promise.all(
-          groupData.books.map(async (bookId: string) => {
+          (groupData?.books ?? []).map(async (bookId: string) => {
             try {
               const bookRes = await getBookById(bookId); // Gọi API lấy thông tin sách
               if (bookRes.code === 200) {
@@ -81,7 +81,7 @@ const BookList: React.FC = () => {
 
   useEffect(() => {
     if (translatorGroupId) {
-      fetchGroup(translatorGroupId); // Gọi hàm fetchGroup với groupId
+      fetchGroup(translatorGroupId as any); // Gọi hàm fetchGroup với groupId
     }
   }, [translatorGroupId]);
 
@@ -101,7 +101,7 @@ const BookList: React.FC = () => {
   const handleRefresh = () => {
     setSearchTitle("");
     if (group) {
-      fetchGroup(group._id); // Làm mới danh sách sách từ nhóm
+      fetchGroup(group._id as any); // Làm mới danh sách sách từ nhóm
     }
   };
 
@@ -149,7 +149,7 @@ const BookList: React.FC = () => {
             }}
           >
             <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>
-              {group?.name || "Danh sách truyện"}
+              {group?.groupName || "Danh sách truyện"}
             </h1>
             <div style={{ display: "flex", gap: "10px" }}>
               <Input

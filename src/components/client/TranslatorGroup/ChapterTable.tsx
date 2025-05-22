@@ -118,7 +118,7 @@ const ChapterTable: React.FC<IProps> = (props: IProps) => {
   // Xóa chương
   const handleDelete = async (chapterId: string) => {
     try {
-      await deleteChapter(chapterId, book?._id);
+      await deleteChapter(chapterId, book?._id as string);
       // Lấy lại book mới nhất từ backend để đồng bộ dữ liệu
       if (book?._id) {
         const refreshedBook = await getBookById(book._id);
@@ -316,8 +316,8 @@ const ChapterTable: React.FC<IProps> = (props: IProps) => {
           </Form.Item>
           <Form.Item label="Nội dung chương" name="images">
             <UploadImgs
-              onUploadSuccess={(urls: string[]) => {
-                form.setFieldsValue({ images: urls });
+              onUploadSuccess={(url: string) => {
+                return form.setFieldsValue({ images: [url] });
               }}
             />
           </Form.Item>

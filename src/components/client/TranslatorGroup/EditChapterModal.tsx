@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Form, Input, Modal } from "antd";
 import { useAppDispatch } from "@/lib/redux/hooks";
-import { setOpenAddBook, setPageTitle } from "@/lib/redux/slice/auth.slice";
+import { setPageTitle } from "@/lib/redux/slice/auth.slice";
 import UploadImg from "../Upload/Upload";
 import { createBook, createChapter } from "@/config/api";
 import { toast } from "react-toastify";

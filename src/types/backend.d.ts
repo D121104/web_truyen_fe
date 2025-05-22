@@ -52,6 +52,8 @@ export interface ILoginUser {
     role: string;
     coin: number;
     avatar: string;
+    books?: IBook[];
+    chapters?: IChapter[];
   };
 }
 
@@ -100,6 +102,8 @@ export interface ICategory {
   categoryName: string;
   description?: string;
   books?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface IBuyHistory {
@@ -140,6 +144,8 @@ export interface ITranslatorGroup {
   groupStatus?: string;
   users?: string[];
   books?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface IBookChapter {

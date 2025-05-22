@@ -6,7 +6,6 @@ export const fetchAccount = createAsyncThunk(
   "account/fetchAccount",
   async () => {
     const response = await callFetchAccount();
-    console.log("response", response);
     return response?.data;
   }
 );
@@ -116,9 +115,11 @@ export const accountSlice = createSlice({
         state.user.coin = action?.payload?.user?.coin;
         state.user.avatar = action?.payload?.user?.avatar;
         state.user.books =
-          action?.payload?.user?.books ?? action?.payload?.books ?? [];
+          action?.payload?.user?.books ?? action?.payload?.user.books ?? [];
         state.user.chapters =
-          action?.payload?.user?.chapters ?? action?.payload?.chapters ?? [];
+          action?.payload?.user?.chapters ??
+          action?.payload?.user.chapters ??
+          [];
       }
     });
 

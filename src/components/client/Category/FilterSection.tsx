@@ -1,11 +1,11 @@
 "use client";
 
 import styles from "@/styles/FilterSection.module.scss";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import classNames from "classnames";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const CategoryFilter = () => {
+const CategoryFilterContent = () => {
   const filterGroups = [
     {
       title: "Trạng thái",
@@ -97,5 +97,11 @@ const CategoryFilter = () => {
     </div>
   );
 };
+
+const CategoryFilter = (props: any) => (
+  <Suspense>
+    <CategoryFilterContent {...props} />
+  </Suspense>
+);
 
 export default CategoryFilter;

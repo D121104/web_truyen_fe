@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Checkbox, Form, Input, Modal, Select } from "antd";
 import { useAppDispatch } from "@/lib/redux/hooks";
-import { setOpenAddBook, setPageTitle } from "@/lib/redux/slice/auth.slice";
+import { setPageTitle } from "@/lib/redux/slice/auth.slice";
 import UploadImg from "../Upload/Upload";
 import { createBook, getCategories, updateBook } from "@/config/api";
 import { toast } from "react-toastify";
@@ -27,7 +27,7 @@ const EditBookModal: React.FC<IProps> = (props: IProps) => {
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
-      values._id = book._id; // Thêm _id vào giá trị form
+      values._id = book?._id; // Thêm _id vào giá trị form
       console.log("Form values:", values);
 
       setConfirmLoading(true);
@@ -66,7 +66,7 @@ const EditBookModal: React.FC<IProps> = (props: IProps) => {
       try {
         const res = await getCategories({ current: 1, pageSize: 100 });
         if (res.code === 200) {
-          setCategories(res.data.result);
+          setCategories(res.data?.result as ICategory[]); // Lưu danh sách thể loại vào state
         } else {
           toast.error("Không thể tải danh sách thể loại");
         }

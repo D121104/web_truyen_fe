@@ -19,7 +19,7 @@ const UploadImgs: React.FC<IProps> = ({ onUploadSuccess }) => {
       const uploadedUrl = info.file.response.data[0];
       const updatedUrls = [...urls, uploadedUrl]; // Thêm URL mới vào danh sách
       setUrls(updatedUrls);
-      onUploadSuccess(updatedUrls); // Truyền danh sách URL đã upload ra ngoài
+      onUploadSuccess(updatedUrls as any); // Truyền danh sách URL đã upload ra ngoài
     } else if (info.file.status === "error") {
       setLoading(false);
       toast.error("Upload file thất bại");

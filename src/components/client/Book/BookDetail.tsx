@@ -38,7 +38,7 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
   const user = useAppSelector((state) => state.auth.user);
   const books = useAppSelector((state) => state.auth.user.books);
   const [loading, setLoading] = useState(false);
-  const isFollowing = books?.includes(book._id);
+  const isFollowing = books?.includes(book._id as any);
   const [isLiked, setIsLiked] = useState(false);
   const dispatch = useAppDispatch();
   console.log("user", user);
@@ -72,9 +72,9 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
     try {
       let res;
       if (isFollowing) {
-        res = await unfollowBook(user._id, book._id);
+        res = await unfollowBook(user._id, book._id as any);
       } else {
-        res = await followBook(user._id, book._id);
+        res = await followBook(user._id, book._id as any);
       }
       if (res.code === 200) {
         // Sau khi follow/unfollow, nên gọi lại API lấy user mới nhất hoặc dispatch cập nhật Redux
@@ -295,7 +295,7 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
                 <div>
                   <span
                     className={styles.chapterNumber}
-                    onClick={() => handleClick(isBought, chapter)}
+                    onClick={() => handleClick(isBought as any, chapter)}
                   >
                     Chương {chapter.chapterNumber}: {chapter.chapterTitle}
                   </span>

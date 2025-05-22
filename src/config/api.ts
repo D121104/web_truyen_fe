@@ -291,6 +291,16 @@ export const createBook = async (
   return res;
 };
 
+export const deleteBook = async (id: string): Promise<any> => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/books/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return res;
+};
+
 export const updateBook = async (body: IBook): Promise<any> => {
   // Loại bỏ các thuộc tính không cần thiết
   const { createdAt, updatedAt, ...filteredBody } = body;
@@ -312,6 +322,7 @@ export const getBooks = async ({
   title = "",
   limit = "",
   sort = "",
+  bookTitle = "",
   categoryId = "",
   status = "",
   period = "",
@@ -323,7 +334,7 @@ export const getBooks = async ({
       categoryId ? `&categoryId=${categoryId}` : ""
     }${status ? `&status=${status}` : ""}${
       period && period !== "all" ? `&period=${period}` : ""
-    }`,
+    }${bookTitle ? `&bookTitle=${new RegExp(bookTitle, "i")}` : ""}`,
     {
       method: "GET",
       headers: {
@@ -335,7 +346,7 @@ export const getBooks = async ({
 };
 
 export const getBookById = async (
-  bookId: string,
+  bookId: string = "",
   limit = "",
   sort = ""
 ): Promise<IBackendRes<IBook>> => {
@@ -388,9 +399,12 @@ export const createGroup = async (body: ITranslatorGroup): Promise<any> => {
 export const getGroups = async ({
   current = 1,
   pageSize = 10,
+  groupStatus = "",
 }): Promise<IBackendRes<IModelPaginate<ITranslatorGroup>>> => {
   const res = await fetchWithInterceptor(
-    `${BACKEND_URL}/api/translator.groups?current=${current}&pageSize=${pageSize}&groupStatus=inactive`,
+    `${BACKEND_URL}/api/translator.groups?current=${current}&pageSize=${pageSize}${
+      groupStatus ? `&groupStatus=${groupStatus}` : ""
+    }`,
     {
       method: "GET",
       headers: {
@@ -708,6 +722,7 @@ export const getChaptersDetails = async (
 export const getCategories = async ({
   current = 1,
   pageSize = 10,
+  categoryName = "",
 }): Promise<IBackendRes<IModelPaginate<ICategory>>> => {
   const res = await fetchWithInterceptor(
     `${BACKEND_URL}/api/categories?current=${current}&pageSize=${pageSize}`,
@@ -797,7 +812,7 @@ export const saveReadingHistory = async (
 export const getReadingHistory = async (
   userId: string,
   limit: number = 20
-): Promise<IReadingHistory[]> => {
+): Promise<any> => {
   const res = await fetchWithInterceptor(
     `${BACKEND_URL}/api/reading-history?userId=${userId}&limit=${limit}`,
     {
@@ -812,7 +827,7 @@ export const getReadingHistory = async (
 export const deleteReadingHistory = async (
   userId: string,
   bookId: string
-): Promise<{ success: boolean; message?: string }> => {
+): Promise<any> => {
   try {
     const res = await fetchWithInterceptor(
       `${BACKEND_URL}/api/reading-history/${userId}`,

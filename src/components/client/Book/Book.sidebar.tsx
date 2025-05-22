@@ -27,7 +27,7 @@ const BookSidebar: React.FC = () => {
     if (bookIds && bookIds.length > 0) {
       try {
         setLoading(true);
-        const res = await getBooksByIds(bookIds);
+        const res = await getBooksByIds(bookIds as any);
         if (res.code === 201) {
           const bookData = res.data.result.map((book: IBook) => ({
             ...book,

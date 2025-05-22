@@ -17,7 +17,7 @@ interface IProps {
 }
 
 const AddBookModal: React.FC<IProps> = (props: IProps) => {
-  const { translatorGroupId } = useParams();
+  const translatorGroupId = useParams().translatorGroupId as string;
   const { open, setOpen, refresh } = props;
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [form] = Form.useForm(); // Sử dụng Ant Design Form instance
@@ -68,7 +68,7 @@ const AddBookModal: React.FC<IProps> = (props: IProps) => {
       try {
         const res = await getCategories({ current: 1, pageSize: 100 });
         if (res.code === 200) {
-          setCategories(res.data.result);
+          setCategories(res.data?.result as ICategory[]); // Lưu danh sách thể loại vào state
         } else {
           toast.error("Không thể tải danh sách thể loại");
         }
