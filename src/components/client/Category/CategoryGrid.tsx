@@ -39,7 +39,7 @@ const CategoriesGrid = () => {
         {categories.map((category) => (
           <div key={category._id} className={styles.category}>
             <a
-              href={`/search?categoryId=${category._id}`}
+              href={`/search?categoryId=${category._id}&status=&period=`}
               className={styles.link}
             >
               {category.categoryName}

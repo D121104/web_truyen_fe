@@ -1,3 +1,5 @@
+'use client";';
+
 import LoadingSpin from "@/components/client/Spin/LoadingSpin";
 import {
   buyChapter,
