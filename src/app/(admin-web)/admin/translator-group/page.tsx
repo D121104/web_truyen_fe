@@ -35,6 +35,7 @@ const TranslatorGroup = () => {
       }
     } catch (error) {
       toast.error("Đã xảy ra lỗi khi tải dữ liệu");
+      console.error("Error fetching groups:", error);
     } finally {
       setLoading(false);
     }
@@ -53,12 +54,15 @@ const TranslatorGroup = () => {
 
     try {
       await updateGroup(updatedRecord);
-      record.groupStatus === "active"
-        ? toast.success("Hủy xác nhận nhóm dịch thành công")
-        : toast.success("Xác nhận nhóm dịch thành công");
+      if (record.groupStatus === "active") {
+        toast.success("Hủy xác nhận nhóm dịch thành công");
+      } else {
+        toast.success("Xác nhận nhóm dịch thành công");
+      }
       await fetchGroups();
     } catch (error) {
       toast.error("Đã xảy ra lỗi khi xác nhận nhóm dịch");
+      console.error("Error updating group status:", error);
     }
   };
 
@@ -95,7 +99,7 @@ const TranslatorGroup = () => {
       key: "groupStatus",
       render: (status: string) => (
         <Tag color={status === "active" ? "green" : "red"}>
-          {status.toUpperCase()}
+          {status?.toUpperCase()}
         </Tag>
       ),
     },

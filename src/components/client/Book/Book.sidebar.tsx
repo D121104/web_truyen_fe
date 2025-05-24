@@ -68,7 +68,7 @@ const BookSidebar: React.FC = () => {
           books.map((book) => (
             <React.Fragment key={book._id}>
               <div className={cx("book-item")}>
-                <Link href={`/book/${book._id}`}>
+                <Link href={`/book/${book._id}?limit=all`}>
                   {" "}
                   <img
                     src={book.imgUrl}
@@ -79,7 +79,7 @@ const BookSidebar: React.FC = () => {
 
                 <div className={cx("book-info")}>
                   <Link
-                    href={`/book/${book._id}`}
+                    href={`/book/${book._id}?limit=all`}
                     className={cx("book-title")}
                     style={{
                       textDecoration: "none",

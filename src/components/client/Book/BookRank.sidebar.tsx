@@ -7,7 +7,7 @@ import classNames from "classnames/bind";
 import { EyeOutlined } from "@ant-design/icons";
 import { Button, Skeleton } from "antd";
 import { IBook } from "@/types/backend";
-import { getBooks, getBooksSortedByViews } from "@/config/api";
+import { getBooks } from "@/config/api";
 
 const cx = classNames.bind(styles);
 
@@ -64,7 +64,7 @@ const BookRankSidebar: React.FC = () => {
                 {index + 1 < 10 ? "0" + (index + 1).toString() : index + 1}{" "}
               </div>
 
-              <Link href={`/book/${book._id}`}>
+              <Link href={`/book/${book._id}?limit=all`}>
                 {" "}
                 <img
                   src={book.imgUrl}
@@ -74,7 +74,7 @@ const BookRankSidebar: React.FC = () => {
               </Link>
               <div className={cx("book-info")}>
                 <Link
-                  href={`/book/${book._id}`}
+                  href={`/book/${book._id}?limit=all`}
                   className={cx("book-title")}
                   style={{
                     textDecoration: "none",

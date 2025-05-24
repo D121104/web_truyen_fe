@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Carousel, Skeleton } from "antd";
-import { faker } from "@faker-js/faker";
+
 import styles from "@/styles/BookCarousel.module.scss"; // Import file SCSS
 import Link from "next/link";
 import { ClockCircleOutlined } from "@ant-design/icons";
@@ -75,16 +75,17 @@ const TrendingBook: React.FC = () => {
         >
           <div className={styles.cardContainer}>
             <div className={styles.card}>
-              <Link
+              {/* <Link
                 href={`/book/${book._id}?limit=all`}
                 className={styles.link}
-              >
-                <img
-                  src={book.imgUrl}
-                  alt={book.bookTitle}
-                  className={styles.image}
-                />
-              </Link>
+              > */}
+              <img
+                src={book.imgUrl}
+                alt={book.bookTitle}
+                className={styles.image}
+                style={{ width: "220px", height: "310px" }}
+              />
+              {/* </Link> */}
 
               <div className={styles.overlay}>
                 <Link

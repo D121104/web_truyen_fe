@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, Flex, notification, Popconfirm, Spin } from "antd";
+import { Avatar, Flex, Popconfirm, Spin } from "antd";
 import classnames from "classnames/bind";
 import React, { useState } from "react";
 import styles from "../../../styles/Content.module.scss";
@@ -45,7 +45,6 @@ const Comment = (props: IProps) => {
     setTotalComments,
     setComments,
     setChildCommentsFromParent,
-    childCommentsFromParent,
   } = props;
 
   const [childComments, setChildComments] = useState<IComment[]>([]);
@@ -63,8 +62,6 @@ const Comment = (props: IProps) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const [current, setCurrent] = useState<number>(1);
-
-  const [meta, setMeta] = useState();
 
   const [isAnswer, setIsAnswer] = useState<boolean>(false);
 
@@ -202,6 +199,7 @@ const Comment = (props: IProps) => {
           style={{
             width: `${48 - level * 10 > 10 ? 48 - level * 10 : 10}px`,
             height: `${48 - level * 10 > 10 ? 48 - level * 10 : 10}px`,
+            backgroundColor: "#3aafa9",
           }}
         >
           {" "}

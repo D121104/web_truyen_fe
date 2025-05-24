@@ -4,8 +4,13 @@ import styles from "@/styles/FilterSection.module.scss";
 import { useState, useEffect, Suspense } from "react";
 import classNames from "classnames";
 import { useRouter, useSearchParams } from "next/navigation";
+import { getCategoryById } from "@/config/api";
+
+import { ICategory } from "@/types/backend";
 
 const CategoryFilterContent = () => {
+  const categoryId = useSearchParams().get("categoryId");
+
   const filterGroups = [
     {
       title: "Trạng thái",
@@ -31,8 +36,28 @@ const CategoryFilterContent = () => {
   const searchParams = useSearchParams();
 
   // Lấy categoryId từ query hiện tại (nếu có)
-  const categoryId = searchParams.get("categoryId");
 
+  const [category, setCategory] = useState<ICategory | null>(null);
+
+  useEffect(() => {
+    const fetchCategory = async () => {
+      if (categoryId) {
+        try {
+          const res = await getCategoryById(categoryId);
+          if (res.code === 200 && res.data) {
+            setCategory(res?.data as ICategory);
+          } else {
+            setCategory(null);
+          }
+        } catch {
+          setCategory(null);
+        }
+      } else {
+        setCategory(null);
+      }
+    };
+    fetchCategory();
+  }, [categoryId]);
   // Lấy giá trị mặc định từ query nếu có
   const getSortOptionsFromParams = () =>
     filterGroups.map((group) => {
@@ -67,10 +92,17 @@ const CategoryFilterContent = () => {
     });
   };
 
+  const title = category
+    ? `Truyện thể loại ${category.categoryName}`
+    : "Truyện thể loại Tất cả";
+  const description = category
+    ? category.description
+    : "Tất cả thể loại truyện tranh";
+
   return (
     <div className={styles.container}>
-      <h2 className={styles.mainTitle}>Truyện thể loại Tất cả</h2>
-      <p className={styles.subTitle}>Tất cả thể loại truyện tranh</p>
+      <h2 className={styles.mainTitle}>{title}</h2>
+      <p className={styles.subTitle}>{description}</p>
 
       <div className={styles.filterGroups}>
         {filterGroups.map((group, groupIndex) => (

@@ -6,7 +6,7 @@ import styles from "@/styles/TranslatorPage.module.scss";
 import { useAppDispatch } from "@/lib/redux/hooks";
 import { setPageTitle } from "@/lib/redux/slice/auth.slice";
 import BookList from "@/components/client/TranslatorGroup/BookList";
-import { MailOutlined, PieChartOutlined } from "@ant-design/icons";
+import { BookOutlined } from "@ant-design/icons";
 import { Menu, type MenuProps } from "antd";
 
 const cx = classnames.bind(styles);
@@ -17,12 +17,10 @@ const TranslatorPage = () => {
   const dispatch = useAppDispatch();
 
   const items: MenuItem[] = [
-    { key: "1", icon: <PieChartOutlined />, label: "Thành viên" },
     {
-      key: "sub1",
+      key: "1",
       label: "Truyện của nhóm",
-      icon: <MailOutlined />,
-      children: [{ key: "2", label: "Danh sách truyện" }],
+      icon: <BookOutlined />,
     },
   ];
 

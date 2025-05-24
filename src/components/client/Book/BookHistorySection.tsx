@@ -81,7 +81,7 @@ const BookSidebar: React.FC = () => {
         {readingHistory.map((history) => (
           <React.Fragment key={history?.bookId}>
             <div className={cx("book-item")}>
-              <Link href={`/book/${history?.bookId}`}>
+              <Link href={`/book/${history?.bookId}?limit=all`}>
                 {" "}
                 <img
                   src={history?.bookImg}
@@ -91,7 +91,7 @@ const BookSidebar: React.FC = () => {
               </Link>
               <div className={cx("book-info")}>
                 <Link
-                  href={`/book/${history?.bookId}`}
+                  href={`/book/${history?.bookId}?limit=all`}
                   className={cx("book-title")}
                   style={{
                     textDecoration: "none",

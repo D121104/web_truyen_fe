@@ -169,11 +169,12 @@ const BookList: React.FC = () => {
             {books.map((book) => (
               <React.Fragment key={book._id}>
                 <Card
-                  style={{ width: 170 }}
+                  style={{ width: 170, height: 250 }}
                   cover={
                     <img
                       alt={book.bookTitle}
                       src={book.imgUrl || "/default-image.png"}
+                      style={{ height: 250, width: 170, objectFit: "cover" }}
                     />
                   }
                   actions={[

@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import styles from "@/styles/BookNew.module.scss";
 import classNames from "classnames/bind";
-import { useParams, usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   EyeFilled,
   HeartFilled,
@@ -19,6 +19,7 @@ import {
 } from "@ant-design/icons";
 
 import relativeTime from "dayjs/plugin/relativeTime";
+import LoadingSpin from "@/components/client/Spin/LoadingSpin";
 dayjs.extend(relativeTime);
 
 const cx = classNames.bind(styles);
@@ -152,6 +153,9 @@ const BookNewContent: React.FC = () => {
     fetchBooks(page, pagination.pageSize);
   };
 
+  if (loading) {
+    return <LoadingSpin></LoadingSpin>;
+  }
   return (
     <div className={styles.bookContainer}>
       <section className={cx("section")}>
@@ -161,8 +165,9 @@ const BookNewContent: React.FC = () => {
         </div>
       </section>
       <div className={styles.bookGrid}>
-        {books.length > 0 &&
-          books?.map((book) => (
+        {Array.isArray(books) &&
+          books.length > 0 &&
+          books.map((book) => (
             <div key={book._id} className={styles.bookCard}>
               <Link
                 href={`/book/${book._id}?limit=all`}
@@ -197,8 +202,9 @@ const BookNewContent: React.FC = () => {
                 </Link>
 
                 <div className={styles.bookChapters}>
-                  {book.chapters?.length > 0 &&
-                    book.chapters.map((chapter, index) => (
+                  {Array.isArray(book.chapters) &&
+                    book.chapters.length > 0 &&
+                    book.chapters.map((chapter) => (
                       <Link
                         key={chapter._id}
                         href={`/book/${book._id}/chapter/${chapter._id}`}

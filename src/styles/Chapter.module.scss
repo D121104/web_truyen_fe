@@ -94,20 +94,20 @@
   svg {
     font-size: 18px;
   }
+}
 
-  .chapterContent {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
+.chapterContent {
+  display: block;
+  align-items: center;
+  justify-content: center;
+  width: 800px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-  .chapterImage {
-    width: 100%;
-    height: 100%;
-  }
+.chapterImage {
+  width: 820px;
+  height: auto;
 }

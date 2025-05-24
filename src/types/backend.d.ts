@@ -41,6 +41,7 @@ export interface IUser {
   avatar?: string;
   books?: string[];
   chapters?: string[];
+  likeBooks?: string[];
 }
 
 export interface ILoginUser {
@@ -71,6 +72,7 @@ export interface IBook {
   translatorGroup?: ITranslatorGroup;
   chapters: IChapter[];
   users?: IUser[];
+  likes?: IUser[];
   comments?: IComment[];
   createdAt?: string;
   updatedAt?: string;

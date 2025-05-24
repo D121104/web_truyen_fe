@@ -1,64 +1,26 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import classnames from "classnames/bind";
 import styles from "@/styles/Header.module.scss";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import { Avatar, Dropdown, Skeleton, Space, Button, Badge, Flex } from "antd";
 import {
-  Avatar,
-  Dropdown,
-  Skeleton,
-  Space,
-  message,
-  Button,
-  notification,
-  Typography,
-  Layout,
-  Input,
-  Menu,
-  Badge,
-  Flex,
-} from "antd";
-import Icon, {
   ContactsOutlined,
   DashOutlined,
-  FileWordOutlined,
-  InsertRowLeftOutlined,
-  DownOutlined,
   LogoutOutlined,
-  StarFilled,
-  ClockCircleOutlined,
-  NotificationFilled,
   UserOutlined,
-  CaretDownFilled,
   BellFilled,
-  TagsFilled,
-  HomeFilled,
-  ClockCircleFilled,
-  TeamOutlined,
 } from "@ant-design/icons";
-import { fetchNotifications, logout } from "@/config/api";
+
 import { setLogoutAction } from "@/lib/redux/slice/auth.slice";
 // import ManageUser from "./User.manage";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faCircle } from "@fortawesome/free-solid-svg-icons";
-import { INotification } from "@/types/backend";
-import NotificationCard from "./Notification.card";
-const { Search } = Input;
-import { SearchProps } from "antd/es/input";
-import classNames from "classnames";
-import { MenuProps } from "antd/lib";
-import CategoryDropdown from "@/components/client/Header/Category.dropdown";
-import RankingDropdown from "@/components/client/Header/Ranking.dropdown";
+
 import ManageUser from "@/components/client/Header/User.manage";
+import { useRouter } from "next/navigation";
+import { logout } from "@/config/api";
 // import socket from "@/utils/socket";
 const cx = classnames.bind(styles);
-
-interface IMessageFromServer {
-  message: string;
-  bookId: string;
-  type: string;
-}
 
 const Header: React.FC = () => {
   const isAuth = useAppSelector(
@@ -66,79 +28,18 @@ const Header: React.FC = () => {
   );
   const user = useAppSelector((state) => state?.auth.user);
   const [open, setOpen] = useState<boolean>(false);
-  const [notifications, setNotifications] = useState<INotification[]>([]);
+
   const loading = useAppSelector((state) => state?.auth.isLoading);
-  const [isNoti, setIsNoti] = useState<boolean>(false);
-  const [isNewNoti, setIsNewNoti] = useState<boolean>(false);
+
   const userRole = user?.role;
-  const notiRef = useRef<HTMLDivElement>(null);
-  const [api, contextHolder] = notification.useNotification();
-  const [current, setCurrent] = useState("");
 
-  // useEffect(() => {
-  //     socket.on("notification", (data: IMessageFromServer) => {
-  //         api.open({
-  //             message: <h3 style={{ color: "rgb(1, 126, 183)" }}>Thông Báo</h3>,
-  //             description: data.message,
-  //             duration: 10,
-  //         });
-  //         const newNoti = {
-  //             content: data.message,
-  //             createdAt: new Date().toISOString(),
-  //             options: { jobId: data.jobId },
-  //             type: data.type,
-  //         } as INotification;
-
-  //         setNotifications((prevNotifications) => [newNoti, ...prevNotifications]);
-  //         setIsNewNoti(true);
-  //     });
-
-  //     return () => {
-  //         console.log("Unregistering socket event");
-  //         socket.off("notification");
-  //     };
-  // }, []);
-
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const handleLogout = async () => {
-    const data = await logout();
+    await logout();
     dispatch(setLogoutAction({}));
-    window.location.reload();
+    router.push("/");
   };
-
-  const handleClick = (e: any) => {
-    e.stopPropagation();
-    setIsNoti(true);
-    setIsNewNoti(false);
-  };
-
-  useEffect(() => {
-    if (isAuth) {
-      const getNotification = async () => {
-        try {
-          const res = await fetchNotifications({});
-
-          if (res.data) {
-            setNotifications(res.data.result as INotification[]);
-          }
-        } catch (error) {}
-      };
-
-      getNotification();
-    }
-  }, [isAuth]);
-
-  useEffect(() => {
-    document.body.addEventListener("click", (e) => {
-      if (notiRef.current && !notiRef.current.contains(e.target as Node)) {
-        setIsNoti(false);
-      }
-    });
-
-    return () => {
-      document.body.removeEventListener("click", () => {});
-    };
-  }, []);
 
   const itemsDropdown = [
     {
@@ -167,11 +68,6 @@ const Header: React.FC = () => {
     },
   ];
 
-  const onClick: MenuProps["onClick"] = (e) => {
-    console.log("click ", e);
-    setCurrent(e.key);
-  };
-
   return (
     <div>
       {loading ? (
@@ -194,6 +90,14 @@ const Header: React.FC = () => {
                     paddingRight: 20,
                   }}
                 >
+                  <Button
+                    type="primary"
+                    onClick={() => {
+                      router.push("/");
+                    }}
+                  >
+                    Trang chủ
+                  </Button>
                   <Avatar size="default" icon={<UserOutlined />} />
                   <Dropdown
                     menu={{ items: itemsDropdown as any }}

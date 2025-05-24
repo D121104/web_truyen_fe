@@ -1,11 +1,14 @@
 import LoadingSpin from "@/components/client/Spin/LoadingSpin";
 import {
+  buyChapter,
+  followBook,
   getBookById,
-  getChapterById,
   saveReadingHistory,
+  unfollowBook,
   updateChapter,
 } from "@/config/api";
-import { useAppSelector } from "@/lib/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import { fetchAccount } from "@/lib/redux/slice/auth.slice";
 import styles from "@/styles/Chapter.module.scss";
 import { IBook, IChapter } from "@/types/backend";
 import {
@@ -16,8 +19,10 @@ import {
   ArrowLeftOutlined,
   ArrowRightOutlined,
 } from "@ant-design/icons";
+import { Modal } from "antd";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 
 interface IProps {
   bookId: string;
@@ -31,7 +36,14 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
   const router = useRouter();
   const [book, setBook] = useState<IBook>();
   const [index, setIndex] = useState(0);
+  const dispatch = useAppDispatch();
   const userId = useAppSelector((state) => state.auth.user._id);
+  const user = useAppSelector((state) => state.auth.user);
+  const books = useAppSelector((state) => state.auth.user?.books || []);
+  const isFollowing = books?.includes(book?._id as any);
+  const [isBought, setIsBought] = useState<boolean>(false);
+  const [open, setOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   const fetchBook = async () => {
     setLoading(true);
@@ -45,6 +57,20 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
         );
         if (currentChapter) {
           setChapter(currentChapter);
+
+          if (
+            currentChapter.users &&
+            Array.isArray(currentChapter.users) &&
+            userId &&
+            currentChapter.users.includes(userId)
+          ) {
+            setIsBought(true);
+            setOpen(false);
+          } else {
+            setIsBought(false);
+            setOpen(true);
+          }
+
           console.log("chapter in saveReadingHistory", chapter);
           if (currentChapter && typeof currentChapter.views === "number") {
             // Xử lý cập nhật viewsHistory
@@ -137,6 +163,61 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
     }
   };
 
+  const handleFollow = async () => {
+    setLoading(true);
+    try {
+      let res;
+      if (isFollowing) {
+        res = await unfollowBook(user._id, book?._id as any);
+      } else {
+        res = await followBook(user._id, book?._id as any);
+      }
+      if (res.code === 200) {
+        // Sau khi follow/unfollow, nên gọi lại API lấy user mới nhất hoặc dispatch cập nhật Redux
+        dispatch(fetchAccount());
+        console.log("user", user);
+        if (isFollowing) {
+          console.log("Đã bỏ theo dõi sách");
+        } else {
+          console.log("Đã theo dõi sách");
+        }
+      } else {
+        console.error("Lỗi khi xử lý theo dõi", res.message);
+      }
+    } catch (error) {
+      console.error("Lỗi khi gửi yêu cầu theo dõi", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOk = async () => {
+    setConfirmLoading(true);
+    try {
+      const res = await buyChapter(userId, chapterId);
+      if (res.code === 201) {
+        toast.success("Mua chương thành công!");
+        setIsBought(true);
+        setOpen(false);
+        // Cập nhật lại dữ liệu chương để hiển thị nội dung
+        fetchBook();
+        dispatch(fetchAccount());
+      } else {
+        toast.error(res.message || "Mua chương thất bại!");
+      }
+    } catch (error) {
+      console.error("Error handling OK button click", error);
+      toast.error("Có lỗi xảy ra khi mua chương!");
+    } finally {
+      setConfirmLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
+    router.back();
+  };
+
   useEffect(() => {
     // fetchChapter();
     fetchBook();
@@ -216,15 +297,28 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
         </div>
 
         {/* Follow Button */}
-        <button className={styles.followButton}>
-          <HeartOutlined />
-          Theo dõi
-        </button>
+
+        {isFollowing ? (
+          <button
+            className={styles.followButton}
+            onClick={handleFollow}
+            style={{ backgroundColor: "#f7444e" }}
+          >
+            <HeartOutlined />
+            Bỏ theo dõi
+          </button>
+        ) : (
+          <button className={styles.followButton} onClick={handleFollow}>
+            <HeartOutlined />
+            Theo dõi
+          </button>
+        )}
       </div>
 
       {/* Chapter Content */}
       <div className={styles.chapterContent}>
-        {Array.isArray(chapter?.images) &&
+        {chapter?.status === "unlock" || isBought ? (
+          Array.isArray(chapter?.images) &&
           chapter.images.length > 0 &&
           chapter.images.map((image, index) => (
             <img
@@ -233,8 +327,113 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
               alt={`Chapter Content ${index + 1}`}
               className={styles.chapterImage}
             />
-          ))}
+          ))
+        ) : chapter?.status === "lock" && !user._id ? (
+          <div className={styles.loginNotice}>
+            <p>
+              Bạn cần{" "}
+              <a
+                href="/login"
+                style={{ color: "#f7444e", textDecoration: "underline" }}
+              >
+                đăng nhập
+              </a>{" "}
+              để mua và đọc chương này.
+            </p>
+          </div>
+        ) : null}
       </div>
+
+      <div className={styles.chapterHeader}>
+        {/* Navigation Section */}
+        <div className={styles.navigation}>
+          <button
+            className={styles.icon}
+            onClick={() => handleNavigation("home")}
+          >
+            <HomeFilled />
+          </button>
+          <button
+            className={styles.icon}
+            onClick={() => handleNavigation("menu")}
+          >
+            <MenuOutlined />
+          </button>
+          <button
+            className={styles.icon}
+            onClick={() => handleNavigation("reload")}
+          >
+            <ReloadOutlined />
+          </button>
+          {index > 0 && (
+            <button
+              className={styles.navButton}
+              onClick={() => handleNavigation("prev")}
+            >
+              <ArrowLeftOutlined style={{ color: "#fff" }} />
+            </button>
+          )}
+        </div>
+
+        {/* Chapter Info */}
+        <div className={styles.chapterInfo}>
+          <select
+            className={styles.chapterSelect}
+            value={chapter?.chapterNumber}
+            onChange={(e) => handleNavigation("chapter", e.target.value)}
+          >
+            {book?.chapters
+              ?.map((chapter) => (
+                <option key={chapter._id} value={chapter.chapterNumber}>
+                  {chapter.chapterNumber}: {chapter.chapterTitle}
+                </option>
+              ))
+              .reverse()}
+          </select>
+        </div>
+
+        <div className={styles.navigation}>
+          {book?.chapters && index < book.chapters.length - 1 && (
+            <button
+              className={styles.navButton}
+              onClick={() => handleNavigation("next")}
+            >
+              <ArrowRightOutlined style={{ color: "#fff" }} />
+            </button>
+          )}
+        </div>
+
+        {/* Follow Button */}
+        {isFollowing ? (
+          <button
+            className={styles.followButton}
+            onClick={handleFollow}
+            style={{ backgroundColor: "#f7444e" }}
+          >
+            <HeartOutlined />
+            Bỏ theo dõi
+          </button>
+        ) : (
+          <button className={styles.followButton} onClick={handleFollow}>
+            <HeartOutlined />
+            Theo dõi
+          </button>
+        )}
+      </div>
+      <Modal
+        title="Mua chương truyện"
+        open={open && !isBought && !!userId && chapter?.status === "lock"}
+        onOk={handleOk}
+        confirmLoading={confirmLoading}
+        onCancel={handleCancel}
+        okText="Mua chương"
+        cancelText="Hủy"
+      >
+        <p>
+          Bạn cần mua chương này với {chapter?.price} để đọc nội dung. Bạn có
+          muốn mua không?
+        </p>
+      </Modal>
     </div>
   );
 };

@@ -11,6 +11,7 @@ import BookSidebar from "@/components/client/Book/Book.sidebar";
 import HistorySection from "@/components/client/Book/BookHistorySection";
 import BookRankSidebar from "@/components/client/Book/BookRank.sidebar";
 import { toast } from "react-toastify";
+import { useAppSelector } from "@/lib/redux/hooks";
 
 const cx = classNames.bind(styles);
 
@@ -18,6 +19,8 @@ const Content: React.FC = () => {
   const paymentSuccess = new URLSearchParams(window.location.search).get(
     "paymentSuccess"
   );
+
+  const user = useAppSelector((state) => state.auth.user);
 
   useEffect(() => {
     if (paymentSuccess) {
@@ -39,8 +42,9 @@ const Content: React.FC = () => {
           <BookNew />
         </div>
         <div className={cx("sidebar")}>
-          <BookSidebar />
-          <HistorySection />
+          {user && user._id && <BookSidebar />}
+          {user && user._id && <HistorySection />}
+
           <BookRankSidebar />
         </div>
       </div>

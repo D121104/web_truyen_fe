@@ -14,10 +14,9 @@ import {
   ITranslatorGroup,
   IChapter,
   ICategory,
-  IReadingHistory,
   ViewHistoryDto,
 } from "@/types/backend";
-import { notification, message } from "antd";
+import { notification } from "antd";
 
 const BACKEND_URL = "http://localhost:8080";
 
@@ -602,6 +601,40 @@ export const fetchBooksByCategory = async (
   return res;
 };
 
+export const likeBook = async (
+  userId: string,
+  bookId: string
+): Promise<any> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/books/like/${bookId}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }),
+    }
+  );
+  return res;
+};
+
+export const unlikeBook = async (
+  userId: string,
+  bookId: string
+): Promise<any> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/books/unlike/${bookId}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }),
+    }
+  );
+  return res;
+};
+
 // api chapters
 export const createChapter = async (
   body: IChapter & { viewsHistory?: ViewHistoryDto[] },
@@ -717,6 +750,20 @@ export const getChaptersDetails = async (
   }
 };
 
+export const buyChapter = async (
+  userId: string,
+  chapterId: string
+): Promise<IBackendRes<IChapter>> => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/chapters/buy`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ chapterId, userId }),
+  });
+  return res;
+};
+
 //api categories
 // Lấy danh sách thể loại (có phân trang và tìm kiếm theo tên)
 export const getCategories = async ({
@@ -726,6 +773,21 @@ export const getCategories = async ({
 }): Promise<IBackendRes<IModelPaginate<ICategory>>> => {
   const res = await fetchWithInterceptor(
     `${BACKEND_URL}/api/categories?current=${current}&pageSize=${pageSize}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return res;
+};
+
+export const getCategoryById = async (
+  id: string
+): Promise<IBackendRes<ICategory>> => {
+  const res = await fetchWithInterceptor(
+    `${BACKEND_URL}/api/categories/${id}`,
     {
       method: "GET",
       headers: {

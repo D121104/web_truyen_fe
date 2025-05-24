@@ -9,7 +9,6 @@ import {
   LikeFilled,
   LoadingOutlined,
   LockOutlined,
-  StepForwardFilled,
   TagsOutlined,
   TeamOutlined,
   UnlockOutlined,
@@ -21,10 +20,11 @@ import Link from "next/link";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
-import { followBook, unfollowBook } from "@/config/api";
+import { followBook, likeBook, unfollowBook, unlikeBook } from "@/config/api";
 import { fetchAccount } from "@/lib/redux/slice/auth.slice";
 import { useRouter } from "next/navigation";
-import { Button, Popconfirm } from "antd";
+import { toast } from "react-toastify";
+import LoadingSpin from "@/components/client/Spin/LoadingSpin";
 
 dayjs.extend(relativeTime);
 
@@ -38,10 +38,9 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
   const user = useAppSelector((state) => state.auth.user);
   const books = useAppSelector((state) => state.auth.user.books);
   const [loading, setLoading] = useState(false);
-  const isFollowing = books?.includes(book._id as any);
+  const isFollowing = books?.includes(book?._id as any);
   const [isLiked, setIsLiked] = useState(false);
   const dispatch = useAppDispatch();
-  console.log("user", user);
 
   // State để quản lý hiển thị danh sách chương
   const [showAllChapters, setShowAllChapters] = useState(false);
@@ -68,24 +67,30 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
   }, [book.chapters, setChaptersToShow, showAllChapters]);
 
   const handleFollow = async () => {
+    if (!user?._id) {
+      router.push("/login");
+      return;
+    }
     setLoading(true);
     try {
       let res;
       if (isFollowing) {
-        res = await unfollowBook(user._id, book._id as any);
+        res = await unfollowBook(user._id, book?._id as any);
       } else {
-        res = await followBook(user._id, book._id as any);
+        res = await followBook(user._id, book?._id as any);
       }
       if (res.code === 200) {
-        // Sau khi follow/unfollow, nên gọi lại API lấy user mới nhất hoặc dispatch cập nhật Redux
         dispatch(fetchAccount());
         console.log("user", user);
         if (isFollowing) {
+          toast.success("Đã bỏ theo dõi sách");
           console.log("Đã bỏ theo dõi sách");
         } else {
+          toast.success("Đã theo dõi sách");
           console.log("Đã theo dõi sách");
         }
       } else {
+        toast.error("Lỗi khi xử lý theo dõi");
         console.error("Lỗi khi xử lý theo dõi", res.message);
       }
     } catch (error) {
@@ -94,23 +99,84 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
       setLoading(false);
     }
   };
-  const router = useRouter();
-  const [buyModalOpen, setBuyModalOpen] = useState(false);
-  interface HandleClickParams {
-    isBought: boolean;
-    chapter: IChapter;
-  }
 
-  const handleClick = (isBought: boolean, chapter: IChapter): void => {
-    if (isBought) {
-      // Nếu đã mua, cho phép đọc chương
-      router.push(`/chapter/${book._id}/${chapter._id}`);
+  useEffect(() => {
+    if (user?._id && book?.likes) {
+      setIsLiked(book.likes.includes(user?._id as any));
+    }
+  }, [user?._id, book?.likes]);
+
+  const handleLike = async () => {
+    if (!user?._id) {
+      router.push("/login");
+      return;
+    }
+    setLoading(true);
+    try {
+      let res;
+      if (isLiked) {
+        res = await unlikeBook(user._id, book?._id as any);
+      } else {
+        res = await likeBook(user._id, book?._id as any);
+      }
+      if (res.code === 201) {
+        setIsLiked(!isLiked);
+        // Cập nhật lại số lượng like ngay lập tức trên UI
+        if (res.data && res.data.likes) {
+          book.likes = res.data.likes;
+        }
+        dispatch(fetchAccount());
+        if (isLiked) {
+          toast.success("Đã bỏ thích sách");
+          console.log("Đã bỏ thích sách");
+        } else {
+          toast.success("Đã thích sách");
+          console.log("Đã thích sách");
+        }
+      } else {
+        toast.error("Lỗi khi xử lý thích sách");
+        console.error("Lỗi khi xử lý thích sách", res.message);
+      }
+    } catch (error) {
+      console.error("Lỗi khi gửi yêu cầu thích sách", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const router = useRouter();
+  // const [buyModalOpen, setBuyModalOpen] = useState(false);
+  // interface HandleClickParams {
+  //   isBought: boolean;
+  //   chapter: IChapter;
+  // }
+
+  const handleClick = (chapter: IChapter): void => {
+    router.push(`/book/${book?._id}/chapter/${chapter?._id}`);
+  };
+
+  const readChapBegin = () => {
+    if (book.chapters.length > 0) {
+      const firstChapter = book.chapters[0];
+      router.push(`/book/${book?._id}/chapter/${firstChapter?._id}`);
     } else {
-      // Nếu chưa mua, hiển thị thông báo hoặc thực hiện hành động khác
-      setBuyModalOpen(true);
+      console.warn("Không có chương nào để đọc");
     }
   };
 
+  const readNewChapter = () => {
+    if (book.chapters.length > 0) {
+      const newChapter = book.chapters[book.chapters.length - 1];
+      router.push(`/book/${book?._id}/chapter/${newChapter?._id}`);
+    } else {
+      console.warn("Không có chương nào để đọc");
+    }
+  };
+
+  if (typeof user === "undefined") return null;
+
+  if (loading) {
+    return <LoadingSpin></LoadingSpin>;
+  }
   return (
     <div className={styles.container}>
       {/* Header Section */}
@@ -198,7 +264,7 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
                 <LikeFilled style={{ color: "#3376bc", marginRight: "10px" }} />
                 Lượt thích
               </span>
-              <h4>0</h4>
+              <h4>{book?.likes?.length}</h4>
             </div>
             <div className={styles.statItem}>
               <span>
@@ -207,33 +273,27 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
                 />
                 Theo dõi
               </span>
-              <h4>0</h4>
+              <h4>{book?.users?.length}</h4>
             </div>
           </div>
         </div>
       </div>
 
       {/* Rating Section */}
-      {/* <div className={styles.rating}>
-        <h2>TA LÀ TÀ ĐẾ</h2>
-        <div className={styles.ratingBox}>
-          <span>Xếp hạng: 4.3/5</span>
-          <span>153 Lượt đánh giá</span>
-        </div>
-      </div> */}
 
       {/* Action Buttons */}
       <div className={styles.actions}>
         <button
           className={styles.button}
           style={{ backgroundColor: "#f28076" }}
+          onClick={readChapBegin}
         >
           Đọc từ đầu
         </button>
         {isFollowing ? (
           <button
             className={styles.button}
-            style={{ backgroundColor: "#01877e" }}
+            style={{ backgroundColor: "#f7444e" }}
             onClick={handleFollow}
           >
             Bỏ theo dõi
@@ -251,14 +311,16 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
         <button
           className={styles.button}
           style={{ backgroundColor: "#3376bc" }}
+          onClick={handleLike}
         >
-          Thích
+          {isLiked ? "Bỏ thích" : "Thích"}
         </button>
         <button
           className={styles.button}
           style={{ backgroundColor: "#f4a82c" }}
+          onClick={readNewChapter}
         >
-          Đọc tiếp <StepForwardFilled />;
+          Đọc mới nhất
         </button>
       </div>
 
@@ -289,20 +351,23 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
         </div>
         <div className={styles.chapterList}>
           {chaptersToShow.map((chapter: IChapter) => {
-            const isBought = chapter.users?.includes(user._id);
+            const isBought = user && chapter.users?.includes(user._id);
             return (
               <div key={chapter.chapterNumber} className={styles.chapterRow}>
                 <div>
                   <span
                     className={styles.chapterNumber}
-                    onClick={() => handleClick(isBought as any, chapter)}
+                    onClick={() => handleClick(chapter)}
                   >
                     Chương {chapter.chapterNumber}: {chapter.chapterTitle}
                   </span>
                 </div>
                 <div className={styles.chapterInfo}>
                   {isBought ? (
-                    <UnlockOutlined style={{ color: "yellow" }} />
+                    <div className={styles.chapterPrice}>
+                      <>{chapter?.price}</>
+                      <UnlockOutlined style={{ color: "yellow" }} />
+                    </div>
                   ) : (
                     <div className={styles.chapterPrice}>
                       <>{chapter?.price}</>
@@ -318,10 +383,10 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
                   </span>
                   <span className={styles.chapterViews}>{chapter.views}</span>
                 </div>
-                <Popconfirm
+                {/* <Popconfirm
                   title={`Bạn có chắc chắn muốn mua chương này với ${chapter.price} coin?`}
                   open={buyModalOpen}
-                ></Popconfirm>
+                ></Popconfirm> */}
               </div>
             );
           })}
