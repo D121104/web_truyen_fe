@@ -18,6 +18,7 @@ import { createComment, getBookById, getComments } from "@/config/api";
 import { message, Spin } from "antd";
 import Comment from "@/components/client/Comment/Comment";
 import { useParams, useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
 
 const cx = classNames.bind(styles);
 
@@ -96,7 +97,7 @@ const ContentInner: React.FC = (props: any) => {
         setComments((prev: any) => {
           return [res.data, ...prev];
         });
-        message.success("Bình luận thành công");
+        toast.success("Bình luận thành công");
         setTotalComments((prev: any) => prev + 1);
         setCommentValue("");
       }
@@ -126,7 +127,7 @@ const ContentInner: React.FC = (props: any) => {
         return [res.data, ...prev];
       });
 
-      message.success("Bình luận thành công");
+      toast.success("Bình luận thành công");
       setTotalComments((prev: any) => prev + 1);
       setCommentValue("");
     }

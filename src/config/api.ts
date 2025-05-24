@@ -850,3 +850,16 @@ export const deleteReadingHistory = async (
     return { success: false, message: error?.message || "Lỗi kết nối server" };
   }
 };
+
+// api payment
+
+export const createPayment = async (amount: number): Promise<any> => {
+  const res = await fetchWithInterceptor(`${BACKEND_URL}/api/payment/pay`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ amount }),
+  });
+  return res;
+};

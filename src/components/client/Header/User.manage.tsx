@@ -29,7 +29,11 @@ import dayjs from "dayjs";
 import { FormProps } from "antd/lib";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { ITranslatorGroup, IUser } from "@/types/backend";
-import { getGroupsByUser, updateUserPassword } from "@/config/api";
+import {
+  createPayment,
+  getGroupsByUser,
+  updateUserPassword,
+} from "@/config/api";
 import { toast } from "react-toastify";
 import Title from "antd/es/typography/Title";
 import { useRouter } from "next/router";
@@ -347,6 +351,31 @@ const UserPayment: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
+  const handleClick = async () => {
+    const values = form.getFieldsValue();
+    const { money } = values;
+    if (money < 2000) {
+      toast.error("Số tiền nạp tối thiểu là 2000đ");
+      return;
+    }
+    if (!money) {
+      toast.error("Trường này không được để trống!");
+      return;
+    }
+
+    setLoading(true);
+    const res = await createPayment(money);
+
+    if (res.code === 201) {
+      window.location.href = res.data?.url;
+    } else {
+      const msg =
+        typeof res.message === "string" ? res.message : res.message.join(", ");
+      toast.error(msg);
+      setLoading(false);
+    }
+  };
+
   return (
     <div>
       <h2 style={{ textAlign: "center", marginBottom: 10 }}>
@@ -368,11 +397,16 @@ const UserPayment: React.FC = () => {
             { required: true, message: "Trường này không được để trống!" },
           ]}
         >
-          <Input />
+          <Input type="number" min={2000} />
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Button loading={loading} type="primary" htmlType="submit">
+          <Button
+            onClick={handleClick}
+            loading={loading}
+            type="primary"
+            htmlType="submit"
+          >
             Xác nhận
           </Button>
         </Form.Item>

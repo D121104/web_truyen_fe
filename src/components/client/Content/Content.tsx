@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import styles from "@/styles/Content.module.scss";
 import TrendingBook from "@/components/client/Book/Book.carousel";
 
@@ -10,10 +10,20 @@ import BookNew from "@/components/client/Book/BookNew";
 import BookSidebar from "@/components/client/Book/Book.sidebar";
 import HistorySection from "@/components/client/Book/BookHistorySection";
 import BookRankSidebar from "@/components/client/Book/BookRank.sidebar";
+import { toast } from "react-toastify";
 
 const cx = classNames.bind(styles);
 
 const Content: React.FC = () => {
+  const paymentSuccess = new URLSearchParams(window.location.search).get(
+    "paymentSuccess"
+  );
+
+  useEffect(() => {
+    if (paymentSuccess) {
+      toast.success("Nạp tiền thành công!");
+    }
+  }, [paymentSuccess]);
   return (
     <div className={cx("contentWrapper")}>
       {/* Truyện nổi bật */}

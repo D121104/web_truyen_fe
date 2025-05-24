@@ -5,6 +5,7 @@ import { setUserLoginInfo } from "@/lib/redux/slice/auth.slice";
 import { message } from "antd";
 import { useSearchParams, useRouter } from "next/navigation";
 import React, { Suspense, useEffect } from "react";
+import { toast } from "react-toastify";
 
 const GoogleAuthContent = () => {
   const searchParams = useSearchParams();
@@ -29,7 +30,7 @@ const GoogleAuthContent = () => {
         }
         localStorage.setItem("access_token", token);
         dispatch(setUserLoginInfo(res.data?.user));
-        message.success("Đăng nhập thành công!");
+        toast.success("Đăng nhập thành công!");
         navigate.push("/");
       };
 
