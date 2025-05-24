@@ -925,3 +925,24 @@ export const createPayment = async (amount: number): Promise<any> => {
   });
   return res;
 };
+
+export const getBooksFromReadingHistory = async (
+  userId: string,
+  limit: number = 20
+): Promise<IBackendRes<IBook[]>> => {
+  // Lấy lịch sử đọc
+  const historyRes = await getReadingHistory(userId, limit);
+  if (!historyRes || !Array.isArray(historyRes.data)) {
+    return { code: 400, message: "Không lấy được lịch sử đọc", data: [] };
+  }
+  // Lấy ra danh sách bookId từ lịch sử đọc
+  const bookIds = historyRes.data
+    .map((item: any) => item.bookId)
+    .filter(Boolean);
+  if (!bookIds.length) {
+    return { code: 200, message: "Không có sách trong lịch sử đọc", data: [] };
+  }
+  // Lấy thông tin sách theo danh sách bookId
+  const booksRes = await getBooksByIds(bookIds);
+  return booksRes;
+};

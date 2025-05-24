@@ -4,8 +4,13 @@ import React, { useEffect, useState, Suspense } from "react";
 import { Pagination } from "antd";
 import Link from "next/link";
 import { useAppSelector } from "@/lib/redux/hooks";
-import { getBooks, getBooksByIds } from "@/config/api";
-import { IBook } from "@/types/backend";
+import {
+  getBooks,
+  getBooksByIds,
+  getBooksFromReadingHistory,
+  getReadingHistory,
+} from "@/config/api";
+import { IBook, IReadingHistory } from "@/types/backend";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import styles from "@/styles/BookNew.module.scss";
@@ -34,6 +39,9 @@ const BookNewContent: React.FC = () => {
   const categoryId = searchParams.get("categoryId") || "";
   const status = searchParams.get("status") || "";
   const period = searchParams.get("period") || "";
+  const user_id = useAppSelector((state) => state.auth.user._id);
+
+  const [readingHistory, setReadingHistory] = useState<IReadingHistory[]>([]);
 
   const [pagination, setPagination] = useState<{
     current: number;
@@ -89,6 +97,23 @@ const BookNewContent: React.FC = () => {
     }
   };
 
+  const fetchReadingHistory = async () => {
+    try {
+      setLoading(true);
+      const res = await getReadingHistory(user_id);
+      if (res.code === 200) {
+        const history = res.data;
+        setReadingHistory(history);
+      } else {
+        console.error("Lỗi khi lấy lịch sử đọc truyện");
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy lịch sử đọc truyện", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchBooksByCategory = async (
     current = 1,
     pageSize = 36,
@@ -121,13 +146,35 @@ const BookNewContent: React.FC = () => {
     }
   };
 
+  const fetchBooksFromHistory = async () => {
+    setLoading(true);
+    try {
+      const res = await getBooksFromReadingHistory(user_id);
+      if (res.code === 201) {
+        setBooks((res.data?.result as IBook[]) || res.data || []);
+        setPagination((prev) => ({
+          ...prev,
+          total: res.data?.result?.length || res.data?.length || 0,
+          pages: 1,
+        }));
+      } else {
+        toast.error(res.message || "Không thể tải danh sách truyện từ lịch sử");
+      }
+    } catch (error) {
+      console.error("Lỗi khi tải sách từ lịch sử đọc:", error);
+      toast.error("Đã xảy ra lỗi khi tải dữ liệu");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (pathname === "/") {
       fetchBooks(pagination.current, pagination.pageSize);
     } else if (pathname === "/follow") {
       fetchUserBooks();
     } else if (pathname === "/history") {
-      fetchUserBooks();
+      fetchBooksFromHistory();
     } else if (pathname.startsWith("/search")) {
       fetchBooksByCategory(
         pagination.current,
