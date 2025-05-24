@@ -169,7 +169,7 @@ const BookList: React.FC = () => {
             {books.map((book) => (
               <React.Fragment key={book._id}>
                 <Card
-                  style={{ width: 170, height: 250 }}
+                  style={{ width: 170, height: 250, marginBottom: 150 }}
                   cover={
                     <img
                       alt={book.bookTitle}

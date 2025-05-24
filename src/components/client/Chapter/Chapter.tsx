@@ -58,22 +58,30 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
         if (currentChapter) {
           setChapter(currentChapter);
 
-          if (
-            currentChapter.users &&
-            Array.isArray(currentChapter.users) &&
-            userId &&
-            currentChapter.users.includes(userId)
-          ) {
+          // Logic kiểm tra mua chương và hiện modal
+          if (currentChapter.status === "lock") {
+            if (
+              userId &&
+              currentChapter.users &&
+              Array.isArray(currentChapter.users) &&
+              currentChapter.users.includes(userId)
+            ) {
+              setIsBought(true);
+              setOpen(false);
+            } else if (userId) {
+              setIsBought(false);
+              setOpen(true);
+            } else {
+              setIsBought(false);
+              setOpen(false);
+            }
+          } else {
             setIsBought(true);
             setOpen(false);
-          } else {
-            setIsBought(false);
-            setOpen(true);
           }
 
-          console.log("chapter in saveReadingHistory", chapter);
+          // Xử lý cập nhật viewsHistory
           if (currentChapter && typeof currentChapter.views === "number") {
-            // Xử lý cập nhật viewsHistory
             const todayStr = new Date().toISOString().slice(0, 10);
             type ViewHistoryItem = { date: string | Date; views: number };
             const viewsHistory: ViewHistoryItem[] = Array.isArray(
@@ -109,7 +117,7 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
               viewsHistory: viewsHistory as any,
             });
           }
-          console.log("currentChapter", currentChapter);
+
           const currentIndex = chapters.findIndex(
             (chapter) => chapter._id === chapterId
           );
@@ -131,39 +139,34 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
 
   const handleNavigation = (direction: string, chapterNumber = "") => {
     if (direction === "next") {
-      // Handle next chapter navigation
       const nextChapter = book?.chapters?.at(index + 1);
-
       if (nextChapter) {
         router.push(`/book/${bookId}/chapter/${nextChapter._id}`);
       }
     } else if (direction === "prev") {
-      // Handle previous chapter navigation
       const prevChapter = book?.chapters?.at(index - 1);
-
       if (prevChapter) {
         router.push(`/book/${bookId}/chapter/${prevChapter._id}`);
       }
     } else if (direction === "home") {
-      // Handle home navigation
       router.push("/");
     } else if (direction === "menu") {
-      // Handle menu navigation
       router.push(`/book/${bookId}?limit=all`);
     } else if (direction === "reload") {
-      // Handle reload navigation
       router.refresh();
     } else if (direction === "chapter") {
       const chapter = book?.chapters?.find(
         (chapter) => chapter.chapterNumber === chapterNumber
       );
-
-      // Handle chapter navigation
       router.push(`/book/${bookId}/chapter/${chapter?._id}`);
     }
   };
 
   const handleFollow = async () => {
+    if (!user?._id) {
+      router.push("/login");
+      return;
+    }
     setLoading(true);
     try {
       let res;
@@ -173,9 +176,7 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
         res = await followBook(user._id, book?._id as any);
       }
       if (res.code === 200) {
-        // Sau khi follow/unfollow, nên gọi lại API lấy user mới nhất hoặc dispatch cập nhật Redux
         dispatch(fetchAccount());
-        console.log("user", user);
         if (isFollowing) {
           console.log("Đã bỏ theo dõi sách");
         } else {
@@ -199,7 +200,6 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
         toast.success("Mua chương thành công!");
         setIsBought(true);
         setOpen(false);
-        // Cập nhật lại dữ liệu chương để hiển thị nội dung
         fetchBook();
         dispatch(fetchAccount());
       } else {
@@ -219,17 +219,16 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
   };
 
   useEffect(() => {
-    // fetchChapter();
     fetchBook();
     if (userId && bookId && chapterId) {
       try {
         saveReadingHistory(userId, bookId, chapterId);
-
         console.log("Lưu lịch sử đọc thành công");
       } catch (error) {
         console.error("Lỗi khi lưu lịch sử đọc", error);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookId, chapterId]);
 
   if (loading) {
@@ -275,13 +274,11 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
             value={chapter?.chapterNumber}
             onChange={(e) => handleNavigation("chapter", e.target.value)}
           >
-            {book?.chapters
-              ?.map((chapter) => (
-                <option key={chapter._id} value={chapter.chapterNumber}>
-                  {chapter.chapterNumber}: {chapter.chapterTitle}
-                </option>
-              ))
-              .reverse()}
+            {book?.chapters?.map((chapter) => (
+              <option key={chapter._id} value={chapter.chapterNumber}>
+                {chapter.chapterNumber}: {chapter.chapterTitle}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -297,7 +294,6 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
         </div>
 
         {/* Follow Button */}
-
         {isFollowing ? (
           <button
             className={styles.followButton}
@@ -319,8 +315,8 @@ const Chapter: React.FC<IProps> = (props: IProps) => {
       <div className={styles.chapterContent}>
         {chapter?.status === "unlock" || isBought ? (
           Array.isArray(chapter?.images) &&
-          chapter.images.length > 0 &&
-          chapter.images.map((image, index) => (
+          chapter.images[0].length > 0 &&
+          chapter.images[0]?.map((image, index) => (
             <img
               key={index}
               src={image}

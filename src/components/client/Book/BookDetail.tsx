@@ -363,18 +363,20 @@ const BookDetail: React.FC<IProps> = (props: IProps) => {
                   </span>
                 </div>
                 <div className={styles.chapterInfo}>
-                  {isBought ? (
+                  {chapter.status == "lock" && isBought ? (
                     <div className={styles.chapterPrice}>
                       <>{chapter?.price}</>
                       <UnlockOutlined style={{ color: "yellow" }} />
                     </div>
-                  ) : (
+                  ) : chapter.status == "lock" ? (
                     <div className={styles.chapterPrice}>
                       <>{chapter?.price}</>
                       <LockOutlined
                         style={{ color: "red", marginLeft: "10px" }}
                       />
                     </div>
+                  ) : (
+                    <></>
                   )}
                   <span className={styles.chapterTime}>
                     {dayjs().diff(dayjs(chapter.createdAt), "day") > 7
